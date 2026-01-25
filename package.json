@@ -1,0 +1,46 @@
+{
+  "name": "smartherbo",
+  "version": "0.1.1",
+  "private": true,
+  "description": "Revolutionize livestock management with Smart Herbo, the premier mobile biometric engine for precision cattle analytics. Leveraging a localized neural core and hardware-accelerated TensorFlow.js inference, Smart Herbo delivers high-accuracy weight predictions and metabolic nutritional guidance directly on your device without cloud requirements. Experience a futuristic, cyberpunk-grade interface optimized with AR-driven spatial measurements and haptic feedback, designed for mission-critical offline performance in the field. From automated morphology verification to professional-grade reporting, Smart Herbo integrates elite AI computer vision with industrial farm workflows to ensure your data remains private, secure, and instantaneous.",
+  "homepage": "https://github.com/myself-aas/Smart-Herbo-WebApp#readme",
+  "bugs": {
+    "url": "https://github.com/myself-aas/Smart-Herbo-WebApp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/myself-aas/Smart-Herbo-WebApp.git"
+  },
+  "license": "ISC",
+  "author": "Ashif Ahmed Shuvo",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@awesome-cordova-plugins/pdf-generator": "^8.1.0",
+    "@capacitor/android": "^8.0.1",
+    "@capacitor/cli": "^8.0.1",
+    "@capacitor/ios": "^8.0.1",
+    "@google/genai": "^1.37.0",
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "file-saver": "^2.0.5",
+    "framer-motion": "^12.25.0",
+    "lucide-react": "^0.562.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

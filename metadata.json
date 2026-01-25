@@ -1,0 +1,7 @@
+{
+  "name": "SmartHerbo",
+  "description": "A futuristic cattle weight predictor and nutritional guide using local TensorFlow.js models for autonomous biometric verification and analysis.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
