@@ -35,17 +35,13 @@ Processes a dual-input architecture:
 
 ### 2. The Weight & Confidence Algorithm
 
-To ensure reliability in the field, the system employs a Statistical Validation layer. It calculates the delta between the AI's neural prediction and the mathematical Schaeffer's Formula:
-
-$$
-\text{Weight (lbs)} = \frac{\text{Heart Girth}^2 \times \text{Length}}{300}
-$$
+To ensure reliability in the field, the system employs a Statistical Validation layer. It calculates the delta between the AI's neural prediction and the mathematical Schaeffer's Formula.
 
 **Confidence Scoring Logic:**
 
-- **PRECISE ($>95\%$):** Neural prediction and Schaeffer formula are within $2\%$ variance.
-- **NOMINAL ($85-95\%$):** Variance is within $10\%$.
-- **STOCHASTIC ($<85\%$):** High variance detected. The system suggests re-measuring the heart girth or improving lighting for the AI camera.
+- **PRECISE (>95%):** Neural prediction and Schaeffer formula are within $2\%$ variance.
+- **NOMINAL (85-95%):** Variance is within $10\%$.
+- **STOCHASTIC (<85%):** High variance detected. The system suggests re-measuring the heart girth or improving lighting for the AI camera.
 
 ### 3. Nutritional Science (Plantain Herb Requirements)
 
