@@ -175,13 +175,13 @@ Measure the animal using a physical tape:
 
 ### Scientific Foundation:
 - Schaeffer's Livestock Weight Formula
-- Metabolic Scaling Principles (BW^0.75)
+- Metabolic Scaling Principles 
 - COCO-SSD Object Detection
 - EfficientNet-inspired architecture
 
 ### Version Information
 - **Current Version**: 0.4.2
-- **Release Date**: [Current Date]
+- **Release Date**: 01-28-2026
 - **Compatibility**: Web & Mobile Browsers
 
 
