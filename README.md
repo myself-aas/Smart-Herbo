@@ -184,6 +184,11 @@ Measure the animal using a physical tape:
 - **Release Date**: [Current Date]
 - **Compatibility**: Web & Mobile Browsers
 
+
+## Author
+
+- [@myself-aas](https://github.com/myself-aas)
+
 ---
 
 *"Precision agriculture through intelligent, private, and accessible technology."*
@@ -191,8 +196,5 @@ Measure the animal using a physical tape:
 ---
 
 
-## Authors
-
-- [@myself-aas](https://github.com/myself-aas)
 
 
