@@ -1,17 +1,48 @@
 {
   "name": "smartherbo",
-  "version": "0.1.1",
+  "version": "0.4.2",
   "private": true,
   "description": "Revolutionize livestock management with Smart Herbo, the premier mobile biometric engine for precision cattle analytics. Leveraging a localized neural core and hardware-accelerated TensorFlow.js inference, Smart Herbo delivers high-accuracy weight predictions and metabolic nutritional guidance directly on your device without cloud requirements. Experience a futuristic, cyberpunk-grade interface optimized with AR-driven spatial measurements and haptic feedback, designed for mission-critical offline performance in the field. From automated morphology verification to professional-grade reporting, Smart Herbo integrates elite AI computer vision with industrial farm workflows to ensure your data remains private, secure, and instantaneous.",
-  "homepage": "https://github.com/myself-aas/Smart-Herbo-WebApp#readme",
+  "keywords": [
+    "Cattle",
+    "Weight",
+    "Predictor",
+    "AI",
+    "Livestock",
+    "Analytics",
+    "Bovine",
+    "Biometric",
+    "Scanner",
+    "Digital",
+    "Cattle",
+    "Weighing",
+    "Scale",
+    "Offline",
+    "AI",
+    "Weight",
+    "Estimation",
+    "Precision",
+    "Livestock",
+    "Farming",
+    "(PLF)",
+    "Morphological",
+    "Measurement",
+    "Feed",
+    "Conversion",
+    "Efficiency",
+    "Smart",
+    "Ag-Tech",
+    "Solutions"
+  ],
+  "homepage": "https://github.com/myself-aas/Smart-Herbo.git#readme",
   "bugs": {
-    "url": "https://github.com/myself-aas/Smart-Herbo-WebApp/issues"
+    "url": "https://github.com/myself-aas/Smart-Herbo/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/myself-aas/Smart-Herbo-WebApp.git"
+    "url": "git+https://github.com/myself-aas/Smart-Herbo.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "author": "Ashif Ahmed Shuvo",
   "type": "module",
   "main": "index.js",

@@ -15,7 +15,6 @@ import {
   Activity,
   HelpCircle,
   FileText,
-  // Icons from ReportCard
   Ruler, 
   Weight, 
   ClipboardCheck, 
@@ -24,7 +23,9 @@ import {
   Database, 
   Lightbulb, 
   Info,
-  Target
+  Target,
+  ArrowLeft,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UnitSystem, WeightUnit, CattleDimensions, PredictionResult } from './types';
@@ -37,10 +38,10 @@ import {
 import { loadBovineModel, predictWeight, validateCattlePresence, IMG_WIDTH, IMG_HEIGHT } from './services/tfjsService';
 import CameraModule from './components/CameraModule';
 import FuturisticInput from './components/FuturisticInput';
-import ReportCard from './components/ReportCard';
 import OnboardingTutorial from './components/OnboardingTutorial';
 
 const STORAGE_KEY = 'bovinemetric_history';
+const LBS_TO_KG = 0.453592;
 
 export default function App() {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -56,10 +57,10 @@ export default function App() {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [showExportPreview, setShowExportPreview] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   
-  const reportRef = useRef<HTMLDivElement>(null);
   const previewImageRef = useRef<HTMLImageElement>(null);
+  const backButtonPressedRef = useRef(false);
 
   useEffect(() => {
     const initApp = async () => {
@@ -71,7 +72,69 @@ export default function App() {
     
     const hasOnboarded = localStorage.getItem('bovinemetric_onboarded');
     if (!hasOnboarded) setShowTutorial(true);
+
+    // Handle browser back button
+    const handlePopState = () => {
+      handleBackPress();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
+
+  // Handle back button functionality
+  const handleBackPress = () => {
+    backButtonPressedRef.current = true;
+    
+    if (isCameraOpen) {
+      setIsCameraOpen(false);
+      return;
+    }
+
+    if (step === 'result') {
+      // Go back to form with current image and dimensions
+      setStep('form');
+      return;
+    }
+
+    if (step === 'processing') {
+      // Cancel processing and go back to form
+      setStep('form');
+      return;
+    }
+
+    if (step === 'form') {
+      if (image) {
+        // Clear image but keep form
+        setImage(null);
+        return;
+      }
+      
+      // Show exit confirmation on first back press in empty form
+      setShowExitConfirm(true);
+    }
+  };
+
+  // Handle mobile back button (capacitor/ionic)
+  useEffect(() => {
+    // For mobile apps using Capacitor
+    if (typeof window !== 'undefined' && (window as any).Capacitor) {
+      const handleBackButton = () => {
+        handleBackPress();
+        return true; // Prevent default back behavior
+      };
+
+      // Register back button listener
+      document.addEventListener('backbutton', handleBackButton, false);
+      
+      return () => {
+        document.removeEventListener('backbutton', handleBackButton, false);
+      };
+    }
+  }, [step, image, isCameraOpen]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -116,7 +179,6 @@ export default function App() {
     setProcessingSubStep('verifying');
 
     try {
-      // Step 1: Bovine Presence Verification
       const presenceValidation = await validateCattlePresence(currentImage);
       if (!presenceValidation.isValid) {
         setStep('form');
@@ -126,11 +188,17 @@ export default function App() {
 
       await new Promise(r => setTimeout(r, 800));
       setProcessingSubStep('inferring');
+
+      const isMetric = units === 'metric';
       
-      const prediction = await predictWeight(dimensions, currentImage, units === 'metric');
+      // prediction.weight is returned in the unit system specified by 'isMetric'
+      const prediction = await predictWeight(dimensions, currentImage, isMetric);
       
-      const metabolicWeight = calculateMetabolicWeight(prediction.weight);
-      const feed = getFeedSuggestions(prediction.weight, metabolicWeight);
+      // Calculate weight in KG for metabolic formulas
+      const weightInKg = isMetric ? prediction.weight : prediction.weight * LBS_TO_KG;
+      const metabolicWeight = calculateMetabolicWeight(weightInKg);
+      
+      const feed = getFeedSuggestions(weightInKg, metabolicWeight);
 
       const finalResult: PredictionResult = {
         ...prediction,
@@ -159,19 +227,43 @@ export default function App() {
     setErrors({});
   };
 
+  const handleExitApp = () => {
+    // For web app, we can close the window or redirect
+    if (typeof window !== 'undefined') {
+      // Close the window if it was opened by script
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'about:blank';
+      }
+    }
+  };
+
   const canPredict = dimensions.height > 0 && dimensions.length > 0 && dimensions.heartGirth > 0 && image && !uploadProgress;
 
-  // Helper variables for result view
   const getResultDisplayData = () => {
     if (!result) return null;
+    
     const dateStr = new Date(result.timestamp).toLocaleDateString();
     const timeStr = new Date(result.timestamp).toLocaleTimeString();
-    const weightInKg = weightUnit === 'kg' ? result.weight : result.weight * 0.453592;
-    const weightInLbs = weightUnit === 'lbs' ? result.weight : result.weight * 2.20462;
+    const isMetricSource = result.units === 'metric';
+    
+    // Normalize to basic KG/LBS values to prevent double conversion bugs
+    const weightInKg = isMetricSource ? result.weight : result.weight * LBS_TO_KG;
+    const weightInLbs = weightInKg / LBS_TO_KG;
+
     const dimUnit = result.units === 'imperial' ? 'in' : 'cm';
     const herbSupplement = result.feedSuggestions.find(f => f.type === "Plantain Herb Supplement");
     
-    return { dateStr, timeStr, weightInKg, weightInLbs, dimUnit, herbSupplement };
+    return { 
+      dateStr, 
+      timeStr,
+      displayWeight: weightUnit === 'kg' ? weightInKg : weightInLbs, 
+      secondaryWeight: weightUnit === 'kg' ? weightInLbs : weightInKg,
+      secondaryUnit: weightUnit === 'kg' ? 'lbs' : 'kg',
+      dimUnit, 
+      herbSupplement 
+    };
   };
 
   const resultData = getResultDisplayData();
@@ -180,15 +272,6 @@ export default function App() {
     <div className="min-h-screen pb-20 max-w-lg mx-auto px-4 md:px-0 relative">
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-600/10 blur-[150px] rounded-full" />
-      </div>
-
-      {/* Hidden container for Report Preview */}
-      <div style={{ position: 'absolute', left: '-9999px', top: '0', pointerEvents: 'none' }}>
-        {result && (
-          <div ref={reportRef}>
-            <ReportCard result={result} weightUnit={weightUnit} />
-          </div>
-        )}
       </div>
 
       <AnimatePresence>
@@ -213,12 +296,31 @@ export default function App() {
 
       <header className="py-8 flex items-center justify-between sticky top-0 bg-[#050505]/80 backdrop-blur-xl z-30">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-600 rounded-xl glow-primary cursor-pointer active:scale-95 transition-all" onClick={reset}>
-            <Zap className="w-5 h-5 text-white" />
-          </div>
+          {/* Back Button - Shows in all states except initial empty form */}
+          {(step !== 'form' || image || result) ? (
+            <button 
+              onClick={handleBackPress}
+              className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all active:scale-95 border border-white/10"
+            >
+              <ArrowLeft className="w-5 h-5 text-white" />
+            </button>
+          ) : (
+            <div className="p-2 bg-blue-600 rounded-xl glow-primary cursor-pointer active:scale-95 transition-all" onClick={reset}>
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+          )}
           <h1 className="text-xl font-bold tracking-tight hidden sm:block">Smart Herbo <span className="text-blue-500">Analytics</span></h1>
         </div>
         <div className="flex items-center gap-2">
+          {/* Tutorial Button */}
+          <button 
+            onClick={() => setShowTutorial(true)}
+            className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all active:scale-95 border border-white/10"
+          >
+            <HelpCircle className="w-5 h-5 text-white/70" />
+          </button>
+          
+          {/* Unit Toggle */}
           <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 glass ml-1">
             <button onClick={() => toggleUnitSystem('imperial')} className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all ${units === 'imperial' ? 'bg-blue-600 text-white' : 'text-white/40'}`}>Imp</button>
             <button onClick={() => toggleUnitSystem('metric')} className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all ${units === 'metric' ? 'bg-blue-600 text-white' : 'text-white/40'}`}>Met</button>
@@ -240,7 +342,9 @@ export default function App() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center"><button onClick={reset} className="text-white/40 hover:text-white text-xs font-black uppercase tracking-widest transition-all">Reset Scan</button></div>
+                  <div className="flex justify-between items-center">
+                    <button onClick={reset} className="text-white/40 hover:text-white text-xs font-black uppercase tracking-widest transition-all">Reset Scan</button>
+                  </div>
                   <div className="relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/3] bg-neutral-900 shadow-2xl group">
                     <img ref={previewImageRef} src={image} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" alt="Biometric Preview" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 pointer-events-none" />
@@ -267,20 +371,19 @@ export default function App() {
             </motion.div>
           )}
 
-          {step === 'result' && result && resultData && (
+          {step === 'result' && result && (() => {
+            const displayData = getResultDisplayData();
+            return (
             <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6 pb-10">
               
-              {/* --- INTEGRATED REPORT CARD UI START --- */}
               <div className="w-full bg-[#050505] text-white p-6 relative overflow-hidden font-inter border border-white/10 shadow-2xl rounded-3xl">
                 
-                {/* Neural Background Texture */}
                 <div className="absolute top-0 left-0 w-full h-full opacity-[0.02] pointer-events-none font-mono text-[6px] overflow-hidden p-3">
                   {Array.from({ length: 20 }).map((_, i) => (
                     <div key={i}>CORE_NODE_IDX_{i}_NEURAL_SYNC_ACTIVE_AAS_BAU_SYSTEM_LOG_{result.timestamp}</div>
                   ))}
                 </div>
 
-                {/* Report Header */}
                 <div className="flex justify-between items-start mb-8 relative z-10 border-b border-white/5 pb-6">
                   <div className="flex items-center gap-3">
                     <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-600/30">
@@ -296,13 +399,12 @@ export default function App() {
                       <Terminal className="w-2 h-2 text-blue-400" />
                       <span className="text-[8px] font-mono font-bold text-white/70 tracking-tighter">BAU_{result.timestamp.toString().slice(-6).toUpperCase()}</span>
                     </div>
-                    <p className="text-[8px] text-white/30 uppercase tracking-[0.2em] block">{resultData.dateStr}</p>
+                    <p className="text-[8px] text-white/30 uppercase tracking-[0.2em] block">{displayData?.dateStr}</p>
                   </div>
                 </div>
 
                 <div className="space-y-6 relative z-10">
                   
-                  {/* SECTION 1: VALIDATION BIOMETRIC MAP */}
                   <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-4 text-white/40">
                       <Ruler className="w-4 h-4 text-blue-500" />
@@ -310,7 +412,6 @@ export default function App() {
                     </div>
                     
                     <div className="flex flex-col gap-4">
-                      {/* Image Box */}
                       <div className="relative rounded-xl overflow-hidden aspect-[4/3] bg-neutral-900 border border-white/10 shadow-xl">
                         <img src={result.image} className="w-full h-full object-cover" alt="Validated Scan" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
@@ -320,7 +421,6 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Dimension Stats */}
                       <div className="space-y-3">
                         {[
                           { label: 'Shoulder Height', val: result.dimensions.height },
@@ -332,7 +432,7 @@ export default function App() {
                               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest">{item.label}</span>
                               <div className="text-right">
                                 <span className="text-2xl font-black font-mono leading-none group-hover:text-blue-400 transition-colors">{item.val}</span>
-                                <span className="text-[8px] font-bold text-white/20 ml-1 uppercase">{resultData.dimUnit}</span>
+                                <span className="text-[8px] font-bold text-white/20 ml-1 uppercase">{displayData?.dimUnit}</span>
                               </div>
                             </div>
                             <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
@@ -344,7 +444,6 @@ export default function App() {
                     </div>
                   </section>
 
-                  {/* SECTION 2: ESTIMATED BODY WEIGHT */}
                   <section className="bg-gradient-to-br from-blue-600 to-indigo-900 rounded-2xl p-4 shadow-xl relative overflow-hidden border-b-4 border-blue-900">
                     <Sparkles className="absolute top-[-10px] right-[-10px] w-24 h-24 opacity-10" />
                     <div className="flex items-center gap-2 mb-3 opacity-80">
@@ -354,12 +453,16 @@ export default function App() {
                     
                     <div className="flex flex-col gap-1">
                       <h2 className="text-6xl font-black text-white leading-[0.85] tracking-tighter">
-                        {resultData.weightInKg.toFixed(1)}<span className="text-xl font-light ml-2 opacity-40 uppercase">kg</span>
+                        {displayData?.displayWeight.toFixed(1)}
+                        <span className="text-xl font-light ml-2 opacity-40 uppercase">{weightUnit}</span>
                       </h2>
                       <div className="flex items-center gap-2 mt-2">
                         <div className="h-px flex-grow bg-white/20" />
                         <p className="text-lg font-bold text-blue-100/90 whitespace-nowrap italic">
-                          ≈ {resultData.weightInLbs.toFixed(1)} <span className="text-xs font-medium opacity-50 uppercase tracking-tighter ml-1">lbs</span>
+                          ≈ {displayData?.secondaryWeight.toFixed(1)}
+                          <span className="text-xs font-medium opacity-50 uppercase tracking-tighter ml-1">
+                            {displayData?.secondaryUnit}
+                          </span>
                         </p>
                         <div className="h-px flex-grow bg-white/20" />
                       </div>
@@ -367,19 +470,17 @@ export default function App() {
 
                     <div className="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
                       <div className="flex flex-wrap gap-4">
-                        {/* Metabolic Block */}
                         <div>
                           <p className="text-[7px] font-black text-blue-200/50 uppercase tracking-[0.2em] mb-1">Metabolic Factor (BW^0.75)</p>
                           <p className="text-2xl font-black text-white font-mono tracking-tight">{result.metabolicWeight.toFixed(2)}</p>
                         </div>
                         
-                        {/* UPDATED: Inference Confidence Block matching ReportCard.tsx */}
                         <div className="border-l border-white/10 pl-4">
                           <p className="text-[7px] font-black text-emerald-400/50 uppercase tracking-[0.2em] mb-1">Inference Confidence</p>
                           <div className="flex items-center gap-2">
                             <Target className="w-3 h-3 text-emerald-400" />
                             <p className="text-2xl font-black text-emerald-400 font-mono tracking-tight">
-                              {(result.confidence * 100).toFixed(1)}<span className="text-xs opacity-60">%</span>
+                              {(result.confidence * 100).toFixed(0)}<span className="text-xs opacity-60">%</span>
                             </p>
                           </div>
                         </div>
@@ -391,27 +492,26 @@ export default function App() {
                     </div>
                   </section>
 
-                  {/* SECTION 3: NUTRITIONAL PRESCRIPTION */}
                   <section className="bg-emerald-500/5 border-2 border-emerald-500/10 rounded-2xl p-4 relative overflow-hidden">
                     <div className="flex items-center gap-2 mb-4 text-emerald-400">
                       <ClipboardCheck className="w-4 h-4" />
                       <span className="text-[9px] font-black uppercase tracking-[0.4em]">Nutritional Prescription</span>
                     </div>
 
-                    {resultData.herbSupplement && (
+                    {displayData?.herbSupplement && (
                       <div className="space-y-4">
                         <div className="flex flex-col gap-3">
                           <div className="flex justify-between items-start">
                              <div>
-                                <h3 className="text-2xl font-black text-white uppercase leading-tight">{resultData.herbSupplement.type}</h3>
-                                <div className="mt-1 inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/30 text-[7px] font-black uppercase tracking-widest">
-                                  <Info className="w-2 h-2" />
-                                  Metabolic Scaled
-                                </div>
+                               <h3 className="text-2xl font-black text-white uppercase leading-tight">{displayData.herbSupplement.type}</h3>
+                               <div className="mt-1 inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/30 text-[7px] font-black uppercase tracking-widest">
+                                 <Info className="w-2 h-2" />
+                                 Metabolic Scaled
+                               </div>
                              </div>
                              <div className="text-right bg-black/40 p-3 rounded-xl border border-white/5">
-                                <span className="text-4xl font-black text-white block leading-none">{resultData.herbSupplement.amount.toFixed(1)}</span>
-                                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-[0.3em] mt-1 block">{resultData.herbSupplement.unit}</span>
+                               <span className="text-4xl font-black text-white block leading-none">{displayData.herbSupplement.amount.toFixed(1)}</span>
+                               <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-[0.3em] mt-1 block">{displayData.herbSupplement.unit}</span>
                              </div>
                           </div>
 
@@ -419,7 +519,7 @@ export default function App() {
                             <Database className="w-4 h-4 text-emerald-500 shrink-0 mt-1" />
                             <div className="space-y-2">
                               <p className="text-[11px] text-white/80 leading-relaxed font-medium">
-                                {resultData.herbSupplement.description}
+                                {displayData.herbSupplement.description}
                               </p>
                               <div className="h-px bg-white/10 w-full" />
                               <p className="text-[8px] text-emerald-400/70 font-bold uppercase tracking-wider">
@@ -428,7 +528,6 @@ export default function App() {
                             </div>
                           </div>
                           
-                          {/* Tips Section */}
                           <div className="bg-yellow-400/5 rounded-xl p-3 border border-yellow-400/10 relative">
                             <div className="flex items-center gap-2 mb-2">
                               <div className="bg-yellow-400/20 p-1.5 rounded">
@@ -453,7 +552,6 @@ export default function App() {
                   </section>
                 </div>
 
-                {/* Footer */}
                 <div className="mt-8 pt-4 border-t border-white/5 flex justify-between items-center opacity-40">
                   <div className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-[0.4em]">
                     <Activity className="w-3 h-3 text-blue-500" />
@@ -464,16 +562,8 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              {/* --- INTEGRATED REPORT CARD UI END --- */}
 
-              {/* Action Buttons */}
               <div className="grid grid-cols-1 gap-3">
-                <button 
-                  onClick={() => setShowExportPreview(true)} 
-                  className="bg-white/5 border border-white/10 py-4 rounded-2xl text-white/80 font-black uppercase text-[9px] tracking-[0.3em] flex items-center justify-center gap-2 hover:bg-white/10 transition-all active:scale-95"
-                >
-                  <FileText className="w-4 h-4" /> Preview Full Report
-                </button>
                 <button 
                   onClick={reset} 
                   className="bg-white/5 border border-white/10 py-4 rounded-2xl text-white/40 font-black uppercase text-[9px] tracking-[0.3em] hover:bg-white/10 transition-all active:scale-95"
@@ -482,7 +572,8 @@ export default function App() {
                 </button>
               </div>
             </motion.div>
-          )}
+            );
+          })()}
         </AnimatePresence>
       </main>
 
@@ -490,28 +581,61 @@ export default function App() {
         {isCameraOpen && <CameraModule onCapture={(img) => { setImage(img); setIsCameraOpen(false); }} onClose={() => setIsCameraOpen(false)} />}
       </AnimatePresence>
 
+      {/* Exit Confirmation Modal */}
       <AnimatePresence>
-        {showExportPreview && result && (
-          <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
-            <div className="bg-neutral-900 w-full max-w-4xl rounded-3xl overflow-hidden flex flex-col max-h-[92vh] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]">
+        {showExitConfirm && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4"
+          >
+            <div className="bg-neutral-900 w-full max-w-md rounded-3xl overflow-hidden flex flex-col border border-white/10 shadow-2xl">
               <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#050505]">
-                <h2 className="text-xl font-bold uppercase tracking-tighter italic">Neural Analytics <strong className="text-blue-400">Report</strong></h2>
-                <button onClick={() => setShowExportPreview(false)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-all"><RotateCcw className="w-5 h-5 text-white/60" /></button>
+                <h2 className="text-xl font-bold uppercase tracking-tighter italic">Exit Application</h2>
+                <button 
+                  onClick={() => setShowExitConfirm(false)} 
+                  className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-all"
+                >
+                  <X className="w-5 h-5 text-white/60" />
+                </button>
               </div>
-              <div className="flex-1 overflow-auto p-6 flex justify-center bg-[#000] scrollbar-hide">
-                <div className="scale-[0.4] sm:scale-[0.5] md:scale-100 origin-top h-fit border-4 border-white/5 rounded">
-                  <ReportCard result={result} weightUnit={weightUnit} />
+              <div className="p-6 flex-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <AlertCircle className="w-6 h-6 text-yellow-500" />
+                  <p className="text-white/80">Are you sure you want to exit Smart Herbo Analytics?</p>
                 </div>
+                <p className="text-white/40 text-sm mb-6">Any unsaved analysis data will be lost.</p>
               </div>
               <div className="p-6 border-t border-white/5 flex gap-3 bg-[#050505]">
-                 <button onClick={() => setShowExportPreview(false)} className="flex-1 bg-white/5 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest">Close Preview</button>
+                <button 
+                  onClick={() => setShowExitConfirm(false)} 
+                  className="flex-1 bg-white/5 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleExitApp} 
+                  className="flex-1 bg-red-600/20 text-red-400 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-red-600/30 transition-all border border-red-500/30"
+                >
+                  Exit App
+                </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      <AnimatePresence>{showTutorial && <OnboardingTutorial onClose={() => { setShowTutorial(false); localStorage.setItem('bovinemetric_onboarded', 'true'); }} />}</AnimatePresence>
+      <AnimatePresence>
+        {showTutorial && (
+          <OnboardingTutorial 
+            onClose={() => { 
+              setShowTutorial(false); 
+              localStorage.setItem('bovinemetric_onboarded', 'true'); 
+            }} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
