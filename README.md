@@ -207,7 +207,7 @@ Measure the animal using a physical tape:
 
 <div align="center">
 
-*Built with 🌾 for food security research in Bangladesh*
+*Built with passion for food security research in Bangladesh*
 
 </div>
 
