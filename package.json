@@ -55,7 +55,6 @@
     "@capacitor/android": "^8.0.1",
     "@capacitor/cli": "^8.0.1",
     "@capacitor/ios": "^8.0.1",
-    "@google/genai": "^1.37.0",
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs": "^4.22.0",
     "@types/react": "^18.2.0",
