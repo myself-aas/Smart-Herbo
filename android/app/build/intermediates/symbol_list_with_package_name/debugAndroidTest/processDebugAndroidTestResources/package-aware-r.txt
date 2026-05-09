@@ -1,3 +1,0 @@
-com.aas.smartherbo.BAU.test
-style WhiteBackgroundDialogTheme
-style WhiteBackgroundTheme
