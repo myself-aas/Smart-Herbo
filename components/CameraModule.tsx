@@ -1,15 +1,12 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { 
-  X, Target, Activity, Scan, Zap, Focus, 
+import {
+  X, Target, Activity, Scan, Zap, Focus,
   Sun, Scaling, AlertCircle, Compass, Database
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import * as tf from '@tensorflow/tfjs';
-
-// Model target dimensions
-const IMG_WIDTH = 240;
-const IMG_HEIGHT = 180;
+import { IMG_WIDTH, IMG_HEIGHT } from '../constants';
 
 interface CameraModuleProps {
   onCapture: (image: string) => void;
@@ -26,7 +23,7 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   const [detector, setDetector] = useState<cocoSsd.ObjectDetection | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isDetecting, setIsDetecting] = useState(true);
@@ -60,7 +57,7 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
   const startCamera = useCallback(async () => {
     try {
       const constraints = {
-        video: { 
+        video: {
           facingMode: { ideal: 'environment' },
           width: { ideal: 1280 },
           height: { ideal: 720 }
@@ -116,8 +113,8 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
         const now = performance.now();
         frameCount++;
         if (now - lastTime >= 1000) {
-          setDiagData(prev => ({ 
-            ...prev, 
+          setDiagData(prev => ({
+            ...prev,
             fps: frameCount,
             iso: Math.floor(100 + Math.random() * 50),
             shutter: `1/${Math.floor(60 + Math.random() * 20)}`
@@ -174,7 +171,7 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
     const displayHeight = videoRef.current.clientHeight;
     canvas.width = displayWidth;
     canvas.height = displayHeight;
-    
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const guideWidth = displayWidth * 0.85;
@@ -191,10 +188,10 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(guideX + guideWidth/3, guideY); ctx.lineTo(guideX + guideWidth/3, guideY + guideHeight);
-    ctx.moveTo(guideX + (guideWidth/3)*2, guideY); ctx.lineTo(guideX + (guideWidth/3)*2, guideY + guideHeight);
-    ctx.moveTo(guideX, guideY + guideHeight/3); ctx.lineTo(guideX + guideWidth, guideY + guideHeight/3);
-    ctx.moveTo(guideX, guideY + (guideHeight/3)*2); ctx.lineTo(guideX + guideWidth, guideY + (guideHeight/3)*2);
+    ctx.moveTo(guideX + guideWidth / 3, guideY); ctx.lineTo(guideX + guideWidth / 3, guideY + guideHeight);
+    ctx.moveTo(guideX + (guideWidth / 3) * 2, guideY); ctx.lineTo(guideX + (guideWidth / 3) * 2, guideY + guideHeight);
+    ctx.moveTo(guideX, guideY + guideHeight / 3); ctx.lineTo(guideX + guideWidth, guideY + guideHeight / 3);
+    ctx.moveTo(guideX, guideY + (guideHeight / 3) * 2); ctx.lineTo(guideX + guideWidth, guideY + (guideHeight / 3) * 2);
     ctx.stroke();
 
     if (activeDetection) {
@@ -251,13 +248,13 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] bg-black flex flex-col overflow-hidden font-futuristic"
     >
       <div className="absolute top-0 inset-x-0 p-6 z-30 flex justify-between items-start pointer-events-none">
         <div className="space-y-4">
-          <motion.div 
+          <motion.div
             initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
             className="flex items-center gap-4 px-6 py-4 bg-black/80 rounded-[2rem] border border-white/10 backdrop-blur-3xl pointer-events-auto shadow-2xl"
           >
@@ -266,32 +263,32 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
               {feedback}
             </span>
           </motion.div>
-          
+
           <div className="flex flex-col gap-2 pointer-events-auto">
-             <div className="px-4 py-2 bg-black/60 rounded-xl text-[9px] font-black text-white/40 uppercase tracking-[0.2em] border border-white/5 flex items-center gap-3">
-               <Focus className="w-3.5 h-3.5 text-blue-400" /> 
-               <div className="flex flex-col">
-                 <span>AF: AUTO_CONT</span>
-                 <span className="text-[7px] text-white/20">S_NODE: 0xFF2A</span>
-               </div>
-             </div>
-             <div className="px-4 py-2 bg-black/60 rounded-xl text-[9px] font-black text-white/40 uppercase tracking-[0.2em] border border-white/5 flex items-center gap-3">
-               <Sun className="w-3.5 h-3.5 text-amber-400" /> 
-               <div className="flex flex-col">
-                 <span>ISO: {diagData.iso} | S: {diagData.shutter}</span>
-                 <span className="text-[7px] text-white/20">EV: +0.0</span>
-               </div>
-             </div>
-             <div className="px-4 py-2 bg-black/60 rounded-xl text-[9px] font-black text-white/40 uppercase tracking-[0.2em] border border-white/5 flex items-center gap-3">
-               <Scaling className="w-3.5 h-3.5 text-emerald-400" /> 
-               <div className="flex flex-col">
-                 <span>OUT: {IMG_WIDTH}x{IMG_HEIGHT}</span>
-                 <span className="text-[7px] text-white/20">FPS: {diagData.fps}</span>
-               </div>
-             </div>
+            <div className="px-4 py-2 bg-black/60 rounded-xl text-[9px] font-black text-white/40 uppercase tracking-[0.2em] border border-white/5 flex items-center gap-3">
+              <Focus className="w-3.5 h-3.5 text-blue-400" />
+              <div className="flex flex-col">
+                <span>AF: AUTO_CONT</span>
+                <span className="text-[7px] text-white/20">S_NODE: 0xFF2A</span>
+              </div>
+            </div>
+            <div className="px-4 py-2 bg-black/60 rounded-xl text-[9px] font-black text-white/40 uppercase tracking-[0.2em] border border-white/5 flex items-center gap-3">
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
+              <div className="flex flex-col">
+                <span>ISO: {diagData.iso} | S: {diagData.shutter}</span>
+                <span className="text-[7px] text-white/20">EV: +0.0</span>
+              </div>
+            </div>
+            <div className="px-4 py-2 bg-black/60 rounded-xl text-[9px] font-black text-white/40 uppercase tracking-[0.2em] border border-white/5 flex items-center gap-3">
+              <Scaling className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="flex flex-col">
+                <span>OUT: {IMG_WIDTH}x{IMG_HEIGHT}</span>
+                <span className="text-[7px] text-white/20">FPS: {diagData.fps}</span>
+              </div>
+            </div>
           </div>
         </div>
-        
+
         <div className="flex gap-4 pointer-events-auto">
           <button onClick={toggleTorch} className={`p-4 rounded-full border border-white/10 transition-all ${torch ? 'bg-amber-500/20 text-amber-400' : 'bg-white/5 text-white/40'}`}>
             <Zap className="w-6 h-6" />
@@ -315,13 +312,13 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
             <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover grayscale-[0.1] contrast-[1.2] brightness-[0.9]" />
             <canvas ref={overlayCanvasRef} className="absolute inset-0 z-10 pointer-events-none" />
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-               <div className="w-24 h-24 border border-white/40 rounded-full flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full" />
-               </div>
+              <div className="w-24 h-24 border border-white/40 rounded-full flex items-center justify-center">
+                <div className="w-1.5 h-1.5 bg-white rounded-full" />
+              </div>
             </div>
             <AnimatePresence>
               {captureStatus === 'detecting' && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                   className="absolute bottom-[20%] px-8 py-5 bg-black/80 border border-white/10 backdrop-blur-2xl rounded-3xl text-center z-30"
                 >
@@ -336,12 +333,12 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
 
       <div className="h-60 bg-[#020202] border-t border-white/5 flex flex-col items-center justify-center p-8 gap-8 relative z-40 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
         <div className="w-full flex justify-around items-center max-w-md">
-           <div className="flex flex-col items-center opacity-25 group">
-              <Compass className="w-6 h-6 mb-2" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Gyro_Sync</span>
-           </div>
-           
-           <button 
+          <div className="flex flex-col items-center opacity-25 group">
+            <Compass className="w-6 h-6 mb-2" />
+            <span className="text-[9px] font-black uppercase tracking-widest">Gyro_Sync</span>
+          </div>
+
+          <button
             onClick={capture}
             disabled={!isReady || !!error}
             className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all active:scale-90
@@ -353,9 +350,9 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
             ) : (
               <Target className="w-10 h-10 text-black" />
             )}
-            
+
             {captureStatus === 'locked' && (
-              <motion.div 
+              <motion.div
                 animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0.1, 0.5] }}
                 transition={{ duration: 1.2, repeat: Infinity }}
                 className="absolute inset-0 bg-blue-400 rounded-full -z-10"
@@ -363,15 +360,15 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
             )}
           </button>
 
-           <div className="flex flex-col items-center opacity-25 group">
-              <Database className="w-6 h-6 mb-2" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Transient</span>
-           </div>
+          <div className="flex flex-col items-center opacity-25 group">
+            <Database className="w-6 h-6 mb-2" />
+            <span className="text-[9px] font-black uppercase tracking-widest">Transient</span>
+          </div>
         </div>
-        
+
         <div className="flex items-center gap-4 border-t border-white/5 pt-6 w-full justify-center">
-           <Activity className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
-           <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/20 italic">Encrypted Local Biometric Extraction // 0xAF92</span>
+          <Activity className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
+          <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/20 italic">Encrypted Local Biometric Extraction // 0xAF92</span>
         </div>
       </div>
 

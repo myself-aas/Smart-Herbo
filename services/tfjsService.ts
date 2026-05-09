@@ -1,12 +1,10 @@
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import { CattleDimensions, ScalerParams } from '../types';
+import { IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS } from '../constants';
 
-// Image parameters matching your custom model training
-export const IMG_WIDTH = 240;
-export const IMG_HEIGHT = 180;
-export const IMG_CHANNELS = 3;
-const LBS_TO_KG = 0.453592; // Standardized conversion factor
+// Standardized conversion factor
+const LBS_TO_KG = 0.453592;
 
 let model: tf.GraphModel | tf.LayersModel | null = null;
 let scaler: ScalerParams | null = null;
@@ -33,7 +31,7 @@ export const loadBovineModel = async () => {
     const response = await fetch('scaler_params.json');
     if (!response.ok) throw new Error('Scaler params not found');
     scaler = await response.json();
-    
+
     console.log("Neural Core: Custom Model and Scaler synchronized.");
     return true;
   } catch (error) {
@@ -52,12 +50,12 @@ export const validateCattlePresence = async (imageSrc: string): Promise<{
     if (!cocoDetector) {
       cocoDetector = await cocoSsd.load({ base: 'lite_mobilenet_v2' });
     }
-    
+
     const predictions = await cocoDetector.detect(imageElement);
-    const cattle = predictions.find(p => 
+    const cattle = predictions.find(p =>
       (p.class === 'cow' || p.class === 'horse') && p.score > 0.4
     );
-    
+
     if (!cattle) {
       return {
         isValid: false,
@@ -65,14 +63,14 @@ export const validateCattlePresence = async (imageSrc: string): Promise<{
         reason: "No cattle detected in the frame. Please ensure the subject is centered."
       };
     }
-    
+
     return {
       isValid: true,
       confidence: cattle.score,
       reason: `Bovine detected: ${(cattle.score * 100).toFixed(1)}% verification.`
     };
   } catch (err) {
-    return { isValid: true, confidence: 1.0 }; 
+    return { isValid: true, confidence: 1.0 };
   }
 };
 
@@ -117,7 +115,7 @@ export const predictWeight = async (
 
   if (model && scaler) {
     const pixels = tf.browser.fromPixels(imageElement);
-    
+
     return tf.tidy(() => {
       const imgTensor = tf.image.resizeBilinear(pixels, [IMG_HEIGHT, IMG_WIDTH])
         .toFloat()
@@ -142,7 +140,7 @@ export const predictWeight = async (
 
       // 3. Assume Model Output is Kg. If model outputs Lbs, multiply by LBS_TO_KG here.
       const aiWeightKg = prediction.dataSync()[0];
-      
+
       // 4. Calculate Confidence against Schaeffer's
       const diff = Math.abs(aiWeightKg - schaefferKg);
       const errorRatio = diff / (aiWeightKg || 1);

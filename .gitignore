@@ -26,3 +26,4 @@ ios
 *.sw?
 
 package-lock.json
+comprehensive_analysis.md
