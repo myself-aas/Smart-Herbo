@@ -26,4 +26,5 @@ ios
 *.sw?
 
 package-lock.json
-comprehensive_analysis.md
+manuscript.docx
+extract_docx.py
