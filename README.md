@@ -1,11 +1,10 @@
-
 # SmartHerbo: A Privacy-First, On-Device Hybrid Neural-Biometric Inference System
 
 SmartHerbo is a futuristic, privacy-first livestock management application designed for precision agriculture. It utilizes on-device Machine Learning (TensorFlow.js) to predict cattle weight and provide specialized nutritional requirements (specifically Plantain Herb supplements) based on metabolic scaling.
 
 ## 🚀 Key Features
 
-- **Hybrid Inference Engine**: Combines a custom neural core (HEART-Net: Hyper-dimensional EinsteinNet Agricultural Translator) with classical biometric formulas (Schaeffer's) to provide high-confidence weight estimations.
+- **Hybrid Inference Engine**: Combines custom neural network inference with classical biometric formulas (Schaeffer's) to provide high-confidence weight estimations.
 
 - **Vision Verification**: Integrated COCO-SSD object detection ensures that measurements are only processed if a bovine subject is detected in the frame, preventing data entry errors.
 
@@ -16,37 +15,6 @@ SmartHerbo is a futuristic, privacy-first livestock management application desig
 - **Futuristic HUD UI**: A high-contrast, dark-mode interface designed for high visibility in field environments with real-time feedback loops.
 
 - **Cross-Platform Navigation**: Robust back button functionality with exit confirmation for both web and mobile platforms.
-
-## 🧠 Technical Architecture
-
-### 1. AI & Machine Learning Pipeline
-
-The app utilizes `tfjsService.ts` to manage a dual-stage inference pipeline:
-
-**Stage 1: Object Detection (COCO-SSD):**
-- Scans the camera stream for cow or horse classes.
-- Only when a subject is "Locked" with a confidence score greater than 0.60 does the system enable the biometric capture interface.
-
-**Stage 2: Custom Regression Model:**
-- Processes a dual-input architecture:
-  - **Image Input**: `[1, 180, 240, 3]` RGB tensor, normalized to `[0, 1]`.
-  - **Numeric Input**: `[1, 3]` vector containing Height, Length, and Heart Girth, normalized using `scaler_params.json` (Mean/Std scaling).
-- **Model**: HEART-Net (Hyper-dimensional EinsteinNet Agricultural Translator) - a hybrid cognitive architecture merging computer vision with physical ground-truth validation.
-
-### 2. The Weight & Confidence Algorithm
-
-To ensure reliability in the field, the system employs a Statistical Validation layer. It calculates the delta between the AI's neural prediction and the mathematical Schaeffer's Weight Formula.
-
-**Confidence Scoring Logic:**
-- **PRECISE (>95%)**: Neural prediction and Schaeffer formula are within 2% variance.
-- **NOMINAL (85-95%)**: Variance is within 10%.
-- **STOCHASTIC (<85%)**: High variance detected. The system suggests re-measuring the heart girth or improving lighting for the AI camera.
-
-### 3. Nutritional Science (Plantain Herb Requirements)
-
-The application calculates the specific dosage of Plantain Herb based on the animal's metabolic needs rather than total mass. This is crucial for herbs with high bioactive concentrations.
-
-**Scaling Logic**: The app uses a baseline of 50g of supplement per 200kg of body weight, adjusted using metabolic scaling principles.
 
 ## 🛠 Installation & Setup
 
@@ -130,23 +98,11 @@ Measure the animal using a physical tape:
 - **Lucide React**: Icon system
 - **COCO-SSD**: Object detection model
 
-### Model Architecture
-- **Input Resolution**: 180×240 pixels
-- **Model Size**: 0.4MB (optimized for edge-first deployment)
-- **Inference Time**: 51.5ms on modern devices
-- **Accuracy**: 92-96% on validation dataset
-
 ### Supported Platforms
 - **Web Browsers**: Chrome 90+, Firefox 88+, Safari 14+
 - **Mobile Web**: iOS 14+, Android 10+
 - **Progressive Web App**: Installable on supported devices
 
-## 📊 Performance Metrics
-
-- **Initial Load**: 1.5-3 seconds (model warm-up)
-- **Inference Speed**: 51.5ms per analysis
-- **Memory Usage**: 50-150MB during active analysis
-- **Battery Impact**: Minimal (local processing only)
 
 ## 🚨 Safety & Disclaimer
 
@@ -163,10 +119,6 @@ Measure the animal using a physical tape:
 - Use professional weighing scales for critical applications
 - Follow manufacturer guidelines for supplement administration
 
-## 📄 License & Credits
-
-**Developed for the BAU Agro System Logic initiative**
-
 ### Core Technologies:
 - **Machine Learning**: TensorFlow.js
 - **Frontend Framework**: React 18 + TypeScript
@@ -178,7 +130,6 @@ Measure the animal using a physical tape:
 - Schaeffer's Livestock Weight Formula
 - Metabolic Scaling Principles 
 - COCO-SSD Object Detection
-- HEART-Net: Hyper-dimensional EinsteinNet Agricultural Translator (DOI: 10.1016/j.atech.2025.101072)
 
 ### Version Information
 - **Current Version**: 0.4.2
@@ -224,8 +175,7 @@ If you use **SmartHerbo** in your research, field studies, or agricultural monit
   publisher = {Github},
   doi = {10.5281/zenodo.19362813},
   url = {https://github.com/myself-aas/Smart-Herbo},
-  abstract = {SmartHerbo is a futuristic, privacy-first livestock management application designed for precision agriculture and metabolic nutritional scaling. Developed at Bangladesh Agricultural University (BAU), the platform utilizes a dual-stage, on-device machine learning pipeline powered by TensorFlow.js. It integrates COCO-SSD for real-time bovine subject verification and HEART-Net (Hyper-dimensional EinsteinNet Agricultural Translator) - a hybrid cognitive architecture that combines custom neural morphology inference with classical Schaeffer’s biometric formulas.},
-  keywords = {Plantain Herb, Digital farming, Sustainable agriculture, Animal husbandry, Animal Feed, Animal Nutrition Sciences},
+  abstract = {SmartHerbo is a futuristic, privacy-first livestock management application designed for precision agriculture and metabolic nutritional scaling. Developed at Bangladesh Agricultural University (BAU), the platform utilizes a dual-stage, on-device machine learning pipeline powered by TensorFlow.js. It integrates COCO-SSD for real-time bovine subject verification with classical Schaeffer’s biometric formulas for weight estimation.},
   keywords = {Plantain Herb, Digital farming, Sustainable agriculture, Animal husbandry, Animal Feed, Animal Nutrition Sciences},
   language = {english},
   note = {Initial stable production release with Zenodo archival integration},
@@ -249,7 +199,7 @@ If you use **SmartHerbo** in your research, field studies, or agricultural monit
 ---
 
 ### **Abstract Summary**
-SmartHerbo leverages **TensorFlow.js** for 100% offline, on-device inference to ensure total data privacy in field environments. By combining **COCO-SSD** computer vision with **HEART-Net** (Hyper-dimensional EinsteinNet Agricultural Translator), it provides high-accuracy cattle weight estimation. Furthermore, it moves beyond simple mass-based nutrition by applying **Metabolic Scaling Principles** to calculate precise bioactive dosages of **Plantain Herb** supplements.
+SmartHerbo leverages **TensorFlow.js** for 100% offline, on-device inference to ensure total data privacy in field environments. By combining **COCO-SSD** computer vision with classical Schaeffer's biometric formulas, it provides high-accuracy cattle weight estimation. Furthermore, it moves beyond simple mass-based nutrition by applying **Metabolic Scaling Principles** to calculate precise bioactive dosages of **Plantain Herb** supplements.
 
 ---
 
@@ -270,7 +220,3 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 *"Precision agriculture through intelligent, private, and accessible technology."*
 
 ---
-
-
-
-
