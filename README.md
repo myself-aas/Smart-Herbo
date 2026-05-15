@@ -1,4 +1,4 @@
-# SmartHerbo: A Privacy-First, On-Device Hybrid Neural-Biometric Inference System
+# SmartHerbo: A Privacy-First, On-Device Hybrid Neural-Biometric Inference System *(Pre-release Research Preview)*
 
 SmartHerbo is a futuristic, privacy-first livestock management application designed for precision agriculture. It utilizes on-device Machine Learning (TensorFlow.js) to predict cattle weight and provide specialized nutritional requirements (specifically Plantain Herb supplements) based on metabolic scaling.
 
