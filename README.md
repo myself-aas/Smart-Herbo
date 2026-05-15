@@ -217,6 +217,5 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ---
 
-*"Precision agriculture through intelligent, private, and accessible technology."*
-
+*“This document is an internal pre-release research preview for SmartHerbo. It describes preliminary prototype findings and internal usability feedback, and is not peer-reviewed or published.”*
 ---
