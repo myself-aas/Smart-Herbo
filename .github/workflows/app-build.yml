@@ -31,9 +31,6 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Add Package-lock
-        run: npm add package-lock.json
-
       - name: Install Dependencies
         run: npm ci
 
