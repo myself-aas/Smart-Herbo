@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# SmartHerbo: A Privacy-First, On-Device Hybrid Neural-Biometric Inference System
-=======
 # SmartHerbo Research Preview
->>>>>>> 99d27c744309415fc5ebfab85c4faacaea21e502
 
 SmartHerbo is a futuristic, privacy-first livestock management application designed for precision agriculture. It utilizes on-device Machine Learning (TensorFlow.js) to predict cattle weight and provide specialized nutritional requirements (specifically Plantain Herb supplements) based on metabolic scaling.
 
@@ -20,11 +16,7 @@ SmartHerbo is a futuristic, privacy-first livestock management application desig
 
 - **Cross-Platform Navigation**: Robust back button functionality with exit confirmation for both web and mobile platforms.
 
-<<<<<<< HEAD
-## 🛠 Installation & Setup
-=======
 ## Installation & Setup
->>>>>>> 99d27c744309415fc5ebfab85c4faacaea21e502
 
 ### Clone the repository:
 ```bash
@@ -211,7 +203,7 @@ SmartHerbo leverages **TensorFlow.js** for 100% offline, on-device inference to 
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
@@ -225,14 +217,4 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ---
 
-<<<<<<< HEAD
-*"Precision agriculture through intelligent, private, and accessible technology."*
-
----
-=======
 *“This document is an internal pre-release research preview for SmartHerbo. It describes preliminary prototype findings and internal usability feedback, and is not peer-reviewed or published.”*
----
-
-*“This document is an internal pre-release research preview for SmartHerbo. It describes preliminary prototype findings and internal usability feedback, and is not peer-reviewed or published.”*
-
->>>>>>> 99d27c744309415fc5ebfab85c4faacaea21e502
