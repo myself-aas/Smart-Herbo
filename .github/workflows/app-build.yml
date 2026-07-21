@@ -90,9 +90,11 @@ jobs:
 
       - name: Install CocoaPods
         run: |
-          if [ -d "ios/App" ]; then
+          if [ -f "ios/App/Podfile" ]; then
             cd ios/App
             pod install
+          else
+            echo "Podfile not found. Skipping CocoaPods installation."
           fi
 
       - name: Build iOS App
