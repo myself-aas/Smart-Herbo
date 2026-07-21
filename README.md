@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 # SmartHerbo: A Privacy-First, On-Device Hybrid Neural-Biometric Inference System
+=======
+# SmartHerbo Research Preview
+>>>>>>> 99d27c744309415fc5ebfab85c4faacaea21e502
 
 SmartHerbo is a futuristic, privacy-first livestock management application designed for precision agriculture. It utilizes on-device Machine Learning (TensorFlow.js) to predict cattle weight and provide specialized nutritional requirements (specifically Plantain Herb supplements) based on metabolic scaling.
 
-## 🚀 Key Features
+## Key Features
 
 - **Hybrid Inference Engine**: Combines custom neural network inference with classical biometric formulas (Schaeffer's) to provide high-confidence weight estimations.
 
@@ -16,7 +20,11 @@ SmartHerbo is a futuristic, privacy-first livestock management application desig
 
 - **Cross-Platform Navigation**: Robust back button functionality with exit confirmation for both web and mobile platforms.
 
+<<<<<<< HEAD
 ## 🛠 Installation & Setup
+=======
+## Installation & Setup
+>>>>>>> 99d27c744309415fc5ebfab85c4faacaea21e502
 
 ### Clone the repository:
 ```bash
@@ -39,7 +47,7 @@ Place the following files in the `/public` folder:
 - Camera permissions for biometric capture
 - Minimum 2GB RAM for optimal performance
 
-## 📱 User Guide & Workflow
+## User Guide & Workflow
 
 ### 1. Initialize Engine
 - On first launch, the app downloads and warms up the local models (may take 1-3 seconds depending on device GPU).
@@ -78,7 +86,7 @@ Measure the animal using a physical tape:
   - From empty form → Shows exit confirmation
 - **Exit Confirmation**: Prevents accidental app closure with clear warning modal.
 
-## 🛠 Troubleshooting
+## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
@@ -89,7 +97,7 @@ Measure the animal using a physical tape:
 | **Camera Not Working** | Try using a different browser (Chrome/Firefox recommended) and check device camera permissions. |
 | **Memory Issues** | Close other tabs/applications to free up GPU memory for TensorFlow.js operations. |
 
-## 🔧 Technical Specifications
+## Technical Specifications
 
 ### Core Dependencies
 - **TensorFlow.js**: On-device ML inference
@@ -98,25 +106,13 @@ Measure the animal using a physical tape:
 - **Lucide React**: Icon system
 - **COCO-SSD**: Object detection model
 
-### Model Architecture
-- **Input Resolution**: 180×240 pixels
-- **Model Size**: 0.4MB (optimized for edge-first deployment)
-- **Inference Time**: 51.5ms on modern devices
-- **Accuracy**: 92-96% on validation dataset
-
 ### Supported Platforms
 - **Web Browsers**: Chrome 90+, Firefox 88+, Safari 14+
 - **Mobile Web**: iOS 14+, Android 10+
 - **Progressive Web App**: Installable on supported devices
 
-## 📊 Performance Metrics
 
-- **Initial Load**: 1.5-3 seconds (model warm-up)
-- **Inference Speed**: 51.5ms per analysis
-- **Memory Usage**: 50-150MB during active analysis
-- **Battery Impact**: Minimal (local processing only)
-
-## 🚨 Safety & Disclaimer
+## Safety & Disclaimer
 
 **SmartHerbo is an estimation tool for agricultural planning purposes only.**
 
@@ -130,10 +126,6 @@ Measure the animal using a physical tape:
 - Contact certified veterinarian immediately
 - Use professional weighing scales for critical applications
 - Follow manufacturer guidelines for supplement administration
-
-## 📄 License & Credits
-
-**Developed for the BAU Agro System Logic initiative**
 
 ### Core Technologies:
 - **Machine Learning**: TensorFlow.js
@@ -153,7 +145,7 @@ Measure the animal using a physical tape:
 - **Compatibility**: Web & Mobile Browsers
 
 
-## 👨‍💻 Author
+## Author
 
 <div align="center">
 
@@ -173,7 +165,7 @@ Measure the animal using a physical tape:
 
 ---
 
-## 🎓 Citation & Metadata
+## Citation & Metadata
 
 If you use **SmartHerbo** in your research, field studies, or agricultural monitoring, please cite the software as follows to ensure proper academic attribution:
 
@@ -233,6 +225,14 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ---
 
+<<<<<<< HEAD
 *"Precision agriculture through intelligent, private, and accessible technology."*
 
 ---
+=======
+*“This document is an internal pre-release research preview for SmartHerbo. It describes preliminary prototype findings and internal usability feedback, and is not peer-reviewed or published.”*
+---
+
+*“This document is an internal pre-release research preview for SmartHerbo. It describes preliminary prototype findings and internal usability feedback, and is not peer-reviewed or published.”*
+
+>>>>>>> 99d27c744309415fc5ebfab85c4faacaea21e502
