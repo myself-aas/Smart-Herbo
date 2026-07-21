@@ -1,8 +1,8 @@
-# SmartHerbo: A Privacy-First, On-Device Hybrid Neural-Biometric Inference System *(Pre-release Research Preview)*
+# SmartHerbo Research Preview
 
 SmartHerbo is a futuristic, privacy-first livestock management application designed for precision agriculture. It utilizes on-device Machine Learning (TensorFlow.js) to predict cattle weight and provide specialized nutritional requirements (specifically Plantain Herb supplements) based on metabolic scaling.
 
-## 🚀 Key Features
+## Key Features
 
 - **Hybrid Inference Engine**: Combines custom neural network inference with classical biometric formulas (Schaeffer's) to provide high-confidence weight estimations.
 
@@ -16,7 +16,7 @@ SmartHerbo is a futuristic, privacy-first livestock management application desig
 
 - **Cross-Platform Navigation**: Robust back button functionality with exit confirmation for both web and mobile platforms.
 
-## 🛠 Installation & Setup
+## Installation & Setup
 
 ### Clone the repository:
 ```bash
@@ -39,7 +39,7 @@ Place the following files in the `/public` folder:
 - Camera permissions for biometric capture
 - Minimum 2GB RAM for optimal performance
 
-## 📱 User Guide & Workflow
+## User Guide & Workflow
 
 ### 1. Initialize Engine
 - On first launch, the app downloads and warms up the local models (may take 1-3 seconds depending on device GPU).
@@ -78,7 +78,7 @@ Measure the animal using a physical tape:
   - From empty form → Shows exit confirmation
 - **Exit Confirmation**: Prevents accidental app closure with clear warning modal.
 
-## 🛠 Troubleshooting
+## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
@@ -89,7 +89,7 @@ Measure the animal using a physical tape:
 | **Camera Not Working** | Try using a different browser (Chrome/Firefox recommended) and check device camera permissions. |
 | **Memory Issues** | Close other tabs/applications to free up GPU memory for TensorFlow.js operations. |
 
-## 🔧 Technical Specifications
+## Technical Specifications
 
 ### Core Dependencies
 - **TensorFlow.js**: On-device ML inference
@@ -104,7 +104,7 @@ Measure the animal using a physical tape:
 - **Progressive Web App**: Installable on supported devices
 
 
-## 🚨 Safety & Disclaimer
+## Safety & Disclaimer
 
 **SmartHerbo is an estimation tool for agricultural planning purposes only.**
 
@@ -137,7 +137,7 @@ Measure the animal using a physical tape:
 - **Compatibility**: Web & Mobile Browsers
 
 
-## 👨‍💻 Author
+## Author
 
 <div align="center">
 
@@ -157,7 +157,7 @@ Measure the animal using a physical tape:
 
 ---
 
-## 🎓 Citation & Metadata
+## Citation & Metadata
 
 If you use **SmartHerbo** in your research, field studies, or agricultural monitoring, please cite the software as follows to ensure proper academic attribution:
 
@@ -219,3 +219,6 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 *“This document is an internal pre-release research preview for SmartHerbo. It describes preliminary prototype findings and internal usability feedback, and is not peer-reviewed or published.”*
 ---
+
+*“This document is an internal pre-release research preview for SmartHerbo. It describes preliminary prototype findings and internal usability feedback, and is not peer-reviewed or published.”*
+
