@@ -9,7 +9,7 @@
 
 ---
 
-## 🚀 Highlights
+## Highlights
 
 - **HEART-Net Hybrid Edge Model**: Introduces the new Hyper-dimensional EinsteinNet Agricultural Translator for fast, high-confidence cattle weight prediction.
 - **Multimodal Late Fusion**: Combines image-based CNN features with structured morphometric inputs (height, length, heart girth) for stronger field robustness.
@@ -19,7 +19,7 @@
 
 ---
 
-## 📌 Release Summary
+## Release Summary
 
 | Area | What’s New | Why it matters |
 |---|---|---|
@@ -30,7 +30,7 @@
 
 ---
 
-## 🧠 Architecture & Model Improvements
+## Architecture & Model Improvements
 
 ### Multimodal Late Fusion
 This release embeds a dual-input neural architecture:
@@ -43,7 +43,7 @@ HEART-Net is designed for lightweight edge deployment with attention and adaptiv
 
 ---
 
-## 📊 Performance Summary
+## Performance Summary
 
 This release note describes early internal performance evaluation, focusing on edge deployment readiness, local execution, and efficiency. Detailed numeric results are omitted in this preliminary summary.
 
@@ -53,7 +53,7 @@ SmartHerbo targets offline local execution, TensorFlow.js compatibility, and eff
 
 ---
 
-## 🌿 Precision Nutrition Integration
+## Precision Nutrition Integration
 
 SmartHerbo now includes metabolic dosage guidance for Plantago lanceolata supplements:
 - Based on predicted weight and metabolic body weight calculated as $w^{0.75}$
@@ -64,7 +64,7 @@ SmartHerbo now includes metabolic dosage guidance for Plantago lanceolata supple
 ---
 
 
-## 🧾 Ethics & Research Status
+## Ethics & Research Status
 
 - This release note summarizes **internal research and development status only**.
 - The work is **not published** and has not been peer-reviewed.
@@ -72,7 +72,7 @@ SmartHerbo now includes metabolic dosage guidance for Plantago lanceolata supple
 - No formal journal submission or publication is implied by this note.
 - The content is presented with transparency and respect for research integrity, originality, and ethical reporting.
 
-## ⚡ Installation & Deployment Notes
+## Installation & Deployment Notes
 
 ### Install
 ```bash
@@ -97,7 +97,7 @@ Place the following files in the `public/` or root model folder:
 
 ---
 
-## 🔒 Privacy & Compliance
+## Privacy & Compliance
 
 - **100% on-device inference**
 - **No cloud image upload**
@@ -106,7 +106,7 @@ Place the following files in the `public/` or root model folder:
 
 ---
 
-## 🧩 Notes for the GitHub Release
+## Notes for the GitHub Release
 
 This release note is tailored for GitHub and can be used directly in the release description. The results described here are based on internal development and preliminary evaluation; they do not represent a peer-reviewed or published article.
 
@@ -126,7 +126,7 @@ This release note is tailored for GitHub and can be used directly in the release
 
 ---
 
-## 📁 Related Resources
+## Related Resources
 
 - `package.json` — current version metadata
 - `README.md` — product overview and architecture
@@ -135,7 +135,7 @@ This release note is tailored for GitHub and can be used directly in the release
 
 ---
 
-## 📌 Acknowledgements
+## Acknowledgements
 
 Built by **Ashif Ahmed Shuvo**.
 
