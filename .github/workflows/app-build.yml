@@ -5,9 +5,8 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+  workflow_dispatch:
 
-# Required to allow pushing branches from workflow
 permissions:
   contents: write
 
@@ -44,7 +43,10 @@ jobs:
         run: npm run build
 
       - name: Add Android Platform
-        run: npx cap add android
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
 
       - name: Sync Capacitor Android
         run: npx cap sync android
@@ -55,19 +57,32 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      # Build marker: set output only if APK really exists
+      - name: Verify Android build output
+        id: android_marker
+        run: |
+          if [ -f "android/app/build/outputs/apk/debug/app-debug.apk" ]; then
+            echo "built=true" >> "$GITHUB_OUTPUT"
+            echo "Android APK found."
+          else
+            echo "built=false" >> "$GITHUB_OUTPUT"
+            echo "Android APK not found."
+          fi
+
       - name: Upload Android APK Artifact
+        if: steps.android_marker.outputs.built == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Commit & push Android platform to android branch
-        if: success() && github.event_name != 'pull_request'
+      - name: Commit & push android/** to android branch
+        if: steps.android_marker.outputs.built == 'true' && github.event_name != 'pull_request'
         run: |
-          set -e
+          set -euo pipefail
 
           if [ ! -d "android" ]; then
-            echo "android directory not found, skipping branch update."
+            echo "android directory missing, skipping."
             exit 0
           fi
 
@@ -75,6 +90,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git fetch origin android || true
+
           if git ls-remote --exit-code --heads origin android >/dev/null 2>&1; then
             git switch -C android --track origin/android
           else
@@ -83,16 +99,18 @@ jobs:
             git clean -fdx
           fi
 
-          git checkout "$GITHUB_SHA" -- android package.json package-lock.json || true
-          git checkout "$GITHUB_SHA" -- capacitor.config.json capacitor.config.ts capacitor.config.js || true
+          # Clean branch content, then restore ONLY android/** from source commit
+          git rm -rf . >/dev/null 2>&1 || true
+          git clean -fdx
+          git checkout "$GITHUB_SHA" -- android
 
-          git add -A
+          git add android
           if git diff --cached --quiet; then
-            echo "No Android changes to commit."
+            echo "No android/** changes to commit."
             exit 0
           fi
 
-          git commit -m "ci: update android platform from ${GITHUB_SHA}"
+          git commit -m "ci: update android branch from ${GITHUB_SHA}"
           git push origin android
 
   # ==========================================
@@ -101,7 +119,7 @@ jobs:
   build-ios:
     name: Build iOS App
     runs-on: macos-latest
-    continue-on-error: true  # iOS is optional for now
+    continue-on-error: true  # keep optional; marker prevents false pushes
 
     steps:
       - name: Checkout Source Code
@@ -146,33 +164,44 @@ jobs:
                        -scheme App \
                        -sdk iphonesimulator \
                        -configuration Debug \
-                       -derivedDataPath build \
+                       -derivedDataPath ios/App/build \
                        clean build
           else
             echo "iOS platform not initialized. Skipping iOS build."
+            exit 1
+          fi
+
+      # Build marker: set output only if xcodebuild artifacts really exist
+      - name: Verify iOS build output
+        id: ios_marker
+        run: |
+          if [ -d "ios/App/build" ] && find "ios/App/build" -type d -name "*.app" | grep -q .; then
+            echo "built=true" >> "$GITHUB_OUTPUT"
+            echo "iOS build artifacts found."
+          else
+            echo "built=false" >> "$GITHUB_OUTPUT"
+            echo "iOS build artifacts not found."
           fi
 
       - name: Compress iOS Build Output
-        if: success()
+        if: steps.ios_marker.outputs.built == 'true'
         run: |
-          if [ -d "ios/App/build" ]; then
-            zip -r ios-debug-build.zip ios/App/build
-          fi
+          zip -r ios-debug-build.zip ios/App/build
 
       - name: Upload iOS Artifact
-        if: success()
+        if: steps.ios_marker.outputs.built == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ios-debug-build
           path: ios-debug-build.zip
 
-      - name: Commit & push iOS platform to ios branch
-        if: success() && github.event_name != 'pull_request'
+      - name: Commit & push ios/** to ios branch
+        if: steps.ios_marker.outputs.built == 'true' && github.event_name != 'pull_request'
         run: |
-          set -e
+          set -euo pipefail
 
           if [ ! -d "ios" ]; then
-            echo "ios directory not found, skipping branch update."
+            echo "ios directory missing, skipping."
             exit 0
           fi
 
@@ -180,6 +209,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git fetch origin ios || true
+
           if git ls-remote --exit-code --heads origin ios >/dev/null 2>&1; then
             git switch -C ios --track origin/ios
           else
@@ -188,14 +218,16 @@ jobs:
             git clean -fdx
           fi
 
-          git checkout "$GITHUB_SHA" -- ios package.json package-lock.json || true
-          git checkout "$GITHUB_SHA" -- capacitor.config.json capacitor.config.ts capacitor.config.js || true
+          # Clean branch content, then restore ONLY ios/** from source commit
+          git rm -rf . >/dev/null 2>&1 || true
+          git clean -fdx
+          git checkout "$GITHUB_SHA" -- ios
 
-          git add -A
+          git add ios
           if git diff --cached --quiet; then
-            echo "No iOS changes to commit."
+            echo "No ios/** changes to commit."
             exit 0
           fi
 
-          git commit -m "ci: update ios platform from ${GITHUB_SHA}"
+          git commit -m "ci: update ios branch from ${GITHUB_SHA}"
           git push origin ios
