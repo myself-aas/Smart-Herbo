@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { UnitSystem, WeightUnit, CattleDimensions, PredictionResult } from './types';
 import {
   validateDimensions,
@@ -640,6 +641,7 @@ export default function App() {
       </AnimatePresence>
 
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
