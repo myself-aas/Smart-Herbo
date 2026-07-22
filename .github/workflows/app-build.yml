@@ -7,6 +7,10 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
+# Required to allow pushing branches from workflow
+permissions:
+  contents: write
+
 jobs:
   # ==========================================
   # ANDROID BUILD JOB
@@ -18,6 +22,8 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -55,6 +61,40 @@ jobs:
           name: android-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Commit & push Android platform to android branch
+        if: success() && github.event_name != 'pull_request'
+        run: |
+          set -e
+
+          if [ ! -d "android" ]; then
+            echo "android directory not found, skipping branch update."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin android || true
+          if git ls-remote --exit-code --heads origin android >/dev/null 2>&1; then
+            git switch -C android --track origin/android
+          else
+            git switch --orphan android
+            git rm -rf . >/dev/null 2>&1 || true
+            git clean -fdx
+          fi
+
+          git checkout "$GITHUB_SHA" -- android package.json package-lock.json || true
+          git checkout "$GITHUB_SHA" -- capacitor.config.json capacitor.config.ts capacitor.config.js || true
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No Android changes to commit."
+            exit 0
+          fi
+
+          git commit -m "ci: update android platform from ${GITHUB_SHA}"
+          git push origin android
+
   # ==========================================
   # iOS BUILD JOB
   # ==========================================
@@ -66,6 +106,8 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -123,3 +165,37 @@ jobs:
         with:
           name: ios-debug-build
           path: ios-debug-build.zip
+
+      - name: Commit & push iOS platform to ios branch
+        if: success() && github.event_name != 'pull_request'
+        run: |
+          set -e
+
+          if [ ! -d "ios" ]; then
+            echo "ios directory not found, skipping branch update."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin ios || true
+          if git ls-remote --exit-code --heads origin ios >/dev/null 2>&1; then
+            git switch -C ios --track origin/ios
+          else
+            git switch --orphan ios
+            git rm -rf . >/dev/null 2>&1 || true
+            git clean -fdx
+          fi
+
+          git checkout "$GITHUB_SHA" -- ios package.json package-lock.json || true
+          git checkout "$GITHUB_SHA" -- capacitor.config.json capacitor.config.ts capacitor.config.js || true
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No iOS changes to commit."
+            exit 0
+          fi
+
+          git commit -m "ci: update ios platform from ${GITHUB_SHA}"
+          git push origin ios
