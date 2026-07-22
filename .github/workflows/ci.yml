@@ -1,2 +1,27 @@
-- name: Setup Ionic
+# Capacitor (default)
+- name: Setup environment
+  uses: coturiv/setup-ionic@v2.0.1
+
+- name: Build Android
+  run: |
+    npx cap sync android
+    cd android
+    ./gradlew assembleDebug
+
+- name: Build iOS (macOS only)
+  run: |
+    npx cap sync ios
+    xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug build
+
+# Cordova (legacy)
+- name: Setup environment
+  uses: coturiv/setup-ionic@v2
+  with:
+    legacy: true
+    cordova-version: 10
+    java-version: 17
+
+- name: Build Android
+  run: |
+    ionic cordova build android --prod- name: Setup Ionic
   uses: coturiv/setup-ionic@v2.0.1
