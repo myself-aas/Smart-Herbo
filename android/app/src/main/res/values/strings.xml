@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SmartHerbo</string>
+    <string name="title_activity_main">SmartHerbo</string>
+    <string name="package_name">com.aas.smartherbo.BAU</string>
+    <string name="custom_url_scheme">com.aas.smartherbo.BAU</string>
+</resources>
