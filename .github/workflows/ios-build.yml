@@ -44,13 +44,24 @@ jobs:
 
       - name: Install CocoaPods
         run: |
-          if [ -f "ios/App/Podfile" ]; then
-            cd ios/App
-            pod install
-          else
-            echo "Podfile not found."
+          set -euo pipefail
+
+          PODFILE_PATH=""
+          for CANDIDATE in "ios/App/Podfile" "ios/Podfile"; do
+            if [ -f "$CANDIDATE" ]; then
+              PODFILE_PATH="$CANDIDATE"
+              break
+            fi
+          done
+
+          if [ -z "$PODFILE_PATH" ]; then
+            echo "Podfile not found in expected locations."
+            find ios -maxdepth 4 -print || true
             exit 1
           fi
+
+          cd "$(dirname "$PODFILE_PATH")"
+          pod install
 
       - name: Build iOS App
         run: |
