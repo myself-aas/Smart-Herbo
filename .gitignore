@@ -23,6 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# package-lock.json
+package-lock.json
 manuscript.docx
 extract_docx.py
