@@ -57,7 +57,7 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      # Build marker: set output only if APK really exists
+      # Build marker: true only if APK exists
       - name: Verify Android build output
         id: android_marker
         run: |
@@ -91,27 +91,43 @@ jobs:
 
           git fetch origin android || true
 
+          PUBLISH_DIR="$RUNNER_TEMP/publish-android"
+          rm -rf "$PUBLISH_DIR"
+          mkdir -p "$PUBLISH_DIR"
+
           if git ls-remote --exit-code --heads origin android >/dev/null 2>&1; then
-            git switch -C android --track origin/android
+            git worktree add -B android "$PUBLISH_DIR" origin/android
           else
-            git switch --orphan android
-            git rm -rf . >/dev/null 2>&1 || true
-            git clean -fdx
+            git worktree add --detach "$PUBLISH_DIR"
+            (
+              cd "$PUBLISH_DIR"
+              git switch --orphan android
+              git rm -rf . >/dev/null 2>&1 || true
+              git clean -fdx
+              git commit --allow-empty -m "chore: initialize android branch"
+            )
           fi
 
-          # Clean branch content, then restore ONLY android/** from source commit
-          git rm -rf . >/dev/null 2>&1 || true
-          git clean -fdx
-          git checkout "$GITHUB_SHA" -- android
+          (
+            cd "$PUBLISH_DIR"
+            find . -mindepth 1 -maxdepth 1 ! -name ".git" -exec rm -rf {} +
+            mkdir -p android
+          )
 
-          git add android
-          if git diff --cached --quiet; then
-            echo "No android/** changes to commit."
-            exit 0
-          fi
+          rsync -a --delete android/ "$PUBLISH_DIR/android/"
 
-          git commit -m "ci: update android branch from ${GITHUB_SHA}"
-          git push origin android
+          (
+            cd "$PUBLISH_DIR"
+            git add android
+            if git diff --cached --quiet; then
+              echo "No android/** changes to commit."
+              exit 0
+            fi
+            git commit -m "ci: update android branch from ${GITHUB_SHA}"
+            git push origin android
+          )
+
+          git worktree remove "$PUBLISH_DIR" --force
 
   # ==========================================
   # iOS BUILD JOB
@@ -119,7 +135,7 @@ jobs:
   build-ios:
     name: Build iOS App
     runs-on: macos-latest
-    continue-on-error: true  # keep optional; marker prevents false pushes
+    continue-on-error: true  # optional, marker prevents false branch pushes
 
     steps:
       - name: Checkout Source Code
@@ -158,35 +174,50 @@ jobs:
           fi
 
       - name: Build iOS App
+        id: ios_build
         run: |
-          if [ -d "ios/App/App.xcworkspace" ]; then
-            xcodebuild -workspace ios/App/App.xcworkspace \
-                       -scheme App \
-                       -sdk iphonesimulator \
-                       -configuration Debug \
-                       -derivedDataPath ios/App/build \
-                       clean build
+          set -euo pipefail
+
+          WS1="ios/App/App.xcworkspace"
+          WS2="ios/App.xcworkspace"
+
+          if [ -d "$WS1" ]; then
+            WORKSPACE="$WS1"
+          elif [ -d "$WS2" ]; then
+            WORKSPACE="$WS2"
           else
-            echo "iOS platform not initialized. Skipping iOS build."
+            echo "No .xcworkspace found. Listing ios tree for debugging:"
+            find ios -maxdepth 4 -print || true
             exit 1
           fi
 
-      # Build marker: set output only if xcodebuild artifacts really exist
+          echo "Using workspace: $WORKSPACE"
+
+          xcodebuild -workspace "$WORKSPACE" \
+                     -scheme App \
+                     -sdk iphonesimulator \
+                     -configuration Debug \
+                     -derivedDataPath ios/build \
+                     clean build
+
+      # Build marker: true only if .app artifacts exist
       - name: Verify iOS build output
         id: ios_marker
         run: |
-          if [ -d "ios/App/build" ] && find "ios/App/build" -type d -name "*.app" | grep -q .; then
+          if [ -d "ios/build" ] && find "ios/build" -type d -name "*.app" | grep -q .; then
             echo "built=true" >> "$GITHUB_OUTPUT"
             echo "iOS build artifacts found."
           else
             echo "built=false" >> "$GITHUB_OUTPUT"
             echo "iOS build artifacts not found."
+            find ios -maxdepth 5 -print || true
           fi
 
       - name: Compress iOS Build Output
         if: steps.ios_marker.outputs.built == 'true'
         run: |
-          zip -r ios-debug-build.zip ios/App/build
+          cd ios
+          zip -r ../ios-debug-build.zip build
 
       - name: Upload iOS Artifact
         if: steps.ios_marker.outputs.built == 'true'
@@ -210,24 +241,40 @@ jobs:
 
           git fetch origin ios || true
 
+          PUBLISH_DIR="$RUNNER_TEMP/publish-ios"
+          rm -rf "$PUBLISH_DIR"
+          mkdir -p "$PUBLISH_DIR"
+
           if git ls-remote --exit-code --heads origin ios >/dev/null 2>&1; then
-            git switch -C ios --track origin/ios
+            git worktree add -B ios "$PUBLISH_DIR" origin/ios
           else
-            git switch --orphan ios
-            git rm -rf . >/dev/null 2>&1 || true
-            git clean -fdx
+            git worktree add --detach "$PUBLISH_DIR"
+            (
+              cd "$PUBLISH_DIR"
+              git switch --orphan ios
+              git rm -rf . >/dev/null 2>&1 || true
+              git clean -fdx
+              git commit --allow-empty -m "chore: initialize ios branch"
+            )
           fi
 
-          # Clean branch content, then restore ONLY ios/** from source commit
-          git rm -rf . >/dev/null 2>&1 || true
-          git clean -fdx
-          git checkout "$GITHUB_SHA" -- ios
+          (
+            cd "$PUBLISH_DIR"
+            find . -mindepth 1 -maxdepth 1 ! -name ".git" -exec rm -rf {} +
+            mkdir -p ios
+          )
 
-          git add ios
-          if git diff --cached --quiet; then
-            echo "No ios/** changes to commit."
-            exit 0
-          fi
+          rsync -a --delete ios/ "$PUBLISH_DIR/ios/"
 
-          git commit -m "ci: update ios branch from ${GITHUB_SHA}"
-          git push origin ios
+          (
+            cd "$PUBLISH_DIR"
+            git add ios
+            if git diff --cached --quiet; then
+              echo "No ios/** changes to commit."
+              exit 0
+            fi
+            git commit -m "ci: update ios branch from ${GITHUB_SHA}"
+            git push origin ios
+          )
+
+          git worktree remove "$PUBLISH_DIR" --force
