@@ -61,7 +61,7 @@ jobs:
   build-ios:
     name: Build iOS App
     runs-on: macos-latest
-    continue-on-error: true  # iOS is optional for now
+    continue-on-error: false
 
     steps:
       - name: Checkout Source Code
