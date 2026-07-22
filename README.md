@@ -20,7 +20,7 @@ SmartHerbo is a futuristic, privacy-first livestock management application desig
 
 ### Clone the repository:
 ```bash
-git clone https://github.com/your-repo/smart-herbo.git
+git clone https://github.com/myself-aas/Smart-Herbo.git
 ```
 
 ### Install dependencies:
