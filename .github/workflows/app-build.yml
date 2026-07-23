@@ -81,7 +81,7 @@ jobs:
 
       - name: Create iOS Platform
         run: |
-          if [ ! -f "ios" ]; then
+          if [ ! -d "ios" ]; then
             npx cap add ios
           fi
 

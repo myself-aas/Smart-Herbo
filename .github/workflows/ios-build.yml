@@ -1,0 +1,161 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-ios:
+    name: Build iOS App Bundle
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Web Assets
+        run: npm run build
+
+      - name: Add iOS Platform
+        run: |
+          if [ ! -d "ios" ]; then
+            npx cap add ios
+          fi
+
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
+
+      - name: Install CocoaPods
+        run: |
+          set -euo pipefail
+
+          PODFILE_PATH=""
+          for CANDIDATE in "ios/App/Podfile" "ios/Podfile"; do
+            if [ -f "$CANDIDATE" ]; then
+              PODFILE_PATH="$CANDIDATE"
+              break
+            fi
+          done
+
+          if [ -z "$PODFILE_PATH" ]; then
+            echo "Podfile not found in expected locations."
+            find ios -maxdepth 4 -print || true
+            exit 1
+          fi
+
+          cd "$(dirname "$PODFILE_PATH")"
+          pod install
+
+      - name: Build iOS App
+        run: |
+          set -euo pipefail
+
+          WS1="ios/App/App.xcworkspace"
+          WS2="ios/App.xcworkspace"
+
+          if [ -d "$WS1" ]; then
+            WORKSPACE="$WS1"
+          elif [ -d "$WS2" ]; then
+            WORKSPACE="$WS2"
+          else
+            echo "No .xcworkspace found."
+            find ios -maxdepth 4 -print || true
+            exit 1
+          fi
+
+          xcodebuild -workspace "$WORKSPACE" \
+                     -scheme App \
+                     -sdk iphonesimulator \
+                     -configuration Debug \
+                     -derivedDataPath ios/build \
+                     clean build
+
+      - name: Package iOS .app Artifact
+        id: ios_artifact
+        run: |
+          set -euo pipefail
+
+          APP_PATH="$(find ios/build -type d -name '*.app' | head -n 1)"
+          if [ -z "$APP_PATH" ]; then
+            echo "No iOS .app artifact found."
+            find ios -maxdepth 6 -print || true
+            exit 1
+          fi
+
+          ZIP_PATH="ios-debug-app.zip"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ZIP_PATH"
+
+          echo "built=true" >> "$GITHUB_OUTPUT"
+          echo "zip_path=$ZIP_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload iOS App Artifact
+        if: steps.ios_artifact.outputs.built == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-debug-app
+          path: ${{ steps.ios_artifact.outputs.zip_path }}
+
+      - name: Commit & push ios/** to ios branch
+        if: steps.ios_artifact.outputs.built == 'true' && github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin ios || true
+
+          PUBLISH_DIR="$RUNNER_TEMP/publish-ios"
+          rm -rf "$PUBLISH_DIR"
+          mkdir -p "$PUBLISH_DIR"
+
+          if git ls-remote --exit-code --heads origin ios >/dev/null 2>&1; then
+            git worktree add -B ios "$PUBLISH_DIR" origin/ios
+          else
+            git worktree add --detach "$PUBLISH_DIR"
+            (
+              cd "$PUBLISH_DIR"
+              git switch --orphan ios
+              git rm -rf . >/dev/null 2>&1 || true
+              git clean -fdx
+              git commit --allow-empty -m "chore: initialize ios branch"
+            )
+          fi
+
+          (
+            cd "$PUBLISH_DIR"
+            find . -mindepth 1 -maxdepth 1 ! -name ".git" -exec rm -rf {} +
+            mkdir -p ios
+          )
+
+          rsync -a --delete ios/ "$PUBLISH_DIR/ios/"
+
+          (
+            cd "$PUBLISH_DIR"
+            git add ios
+            if git diff --cached --quiet; then
+              echo "No ios/** changes to commit."
+              exit 0
+            fi
+            git commit -m "ci: update ios branch from ${GITHUB_SHA}"
+            git push origin ios
+          )
+
+          git worktree remove "$PUBLISH_DIR" --force
