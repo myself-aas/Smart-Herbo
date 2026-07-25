@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+android
+ios
 *.local
 
 # Editor directories and files
@@ -23,5 +25,4 @@ dist-ssr
 *.sln
 *.sw?
 
-manuscript.docx
-extract_docx.py
+package-lock.json
