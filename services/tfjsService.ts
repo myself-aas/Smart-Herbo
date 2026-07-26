@@ -54,15 +54,18 @@ export const validateCattlePresence = async (imageSrc: string): Promise<{
     }
     
     const predictions = await cocoDetector.detect(imageElement);
+    // Require higher confidence for biometric lock engagement
+    // Only accept indigenous cattle class(es). Adjust the whitelist as needed for the custom model.
+    const ALLOWED_CATTLE_CLASSES = ['cattle', 'cow'];
     const cattle = predictions.find(p => 
-      (p.class === 'cow' || p.class === 'horse') && p.score > 0.4
+      ALLOWED_CATTLE_CLASSES.includes(p.class) && p.score > 0.60
     );
     
     if (!cattle) {
       return {
         isValid: false,
         confidence: 0,
-        reason: "No cattle detected in the frame. Please ensure the subject is centered."
+        reason: "No indigenous cattle detected. Please re‑scan the subject."
       };
     }
     

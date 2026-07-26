@@ -127,7 +127,10 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
         }
 
         const predictions = await detector.detect(videoRef.current);
-        const cattle = predictions.find(p => (p.class === 'cow' || p.class === 'horse') && p.score > 0.35);
+        // Detect cattle with a modest confidence threshold; lock requires higher confidence
+        // Whitelist for indigenous cattle detection (custom model may use 'cattle' or 'cow')
+        const ALLOWED_CATTLE_CLASSES = ['cattle', 'cow'];
+        const cattle = predictions.find(p => ALLOWED_CATTLE_CLASSES.includes(p.class) && p.score > 0.35);
 
         if (cattle) {
           setActiveDetection({
@@ -147,9 +150,14 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
           } else if (areaRatio > 0.85) {
             setFeedback('TARGET TOO CLOSE');
             setCaptureStatus('detecting');
-          } else {
+          } else if (cattle.score > 0.60) {
+            // Confidence sufficient to engage biometric lock
             setFeedback('BIOMETRIC LOCK: NOMINAL');
             setCaptureStatus('locked');
+          } else {
+            // Detected but confidence insufficient
+            setFeedback(`LOW CONFIDENCE (${Math.round(cattle.score * 100)}%)`);
+            setCaptureStatus('detecting');
           }
         } else {
           setActiveDetection(null);

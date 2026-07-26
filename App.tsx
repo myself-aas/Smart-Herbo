@@ -36,6 +36,7 @@ import {
   formatWeight 
 } from './services/calculationService';
 import { loadBovineModel, predictWeight, validateCattlePresence, IMG_WIDTH, IMG_HEIGHT } from './services/tfjsService';
+import { hashImageBase64, appendDiagnosticLog } from './services/hashService';
 import CameraModule from './components/CameraModule';
 import FuturisticInput from './components/FuturisticInput';
 import OnboardingTutorial from './components/OnboardingTutorial';
