@@ -1,3 +1,5 @@
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Camera as CameraIcon, 
@@ -27,6 +29,7 @@ import {
   ArrowLeft,
   X
 } from 'lucide-react';
+import { Github } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UnitSystem, WeightUnit, CattleDimensions, PredictionResult } from './types';
 import { 
@@ -228,6 +231,29 @@ export default function App() {
     setErrors({});
   };
 
+  // Export result view as PNG
+  const exportAsPNG = async () => {
+    const element = document.getElementById('result-view');
+    if (!element) return;
+    const canvas = await html2canvas(element, { backgroundColor: null });
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `SmartHerbo_Result_${new Date().toISOString()}.png`;
+    link.click();
+  };
+
+  // Export result view as PDF
+  const exportAsPDF = async () => {
+    const element = document.getElementById('result-view');
+    if (!element) return;
+    const canvas = await html2canvas(element, { backgroundColor: null });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: [canvas.width, canvas.height] });
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`SmartHerbo_Result_${new Date().toISOString()}.pdf`);
+  };
+
   const handleExitApp = () => {
     // For web app, we can close the window or redirect
     if (typeof window !== 'undefined') {
@@ -271,6 +297,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-20 max-w-lg mx-auto px-4 md:px-0 relative">
+      {/* Skip to main content link for accessibility */}
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute left-4 top-4 bg-black/70 text-white px-3 py-1 rounded-md z-50" aria-label="Skip to main content">Skip to main content</a>
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-600/10 blur-[150px] rounded-full" />
       </div>
@@ -295,20 +323,26 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <header className="py-8 flex items-center justify-between sticky top-0 bg-[#050505]/80 backdrop-blur-xl z-30">
+      <header role="navigation" aria-label="Main navigation" className="py-8 flex items-center justify-between sticky top-0 bg-[#050505]/80 backdrop-blur-xl z-30">
         <div className="flex items-center gap-3">
           {/* Back Button - Shows in all states except initial empty form */}
           {(step !== 'form' || image || result) ? (
             <button 
               onClick={handleBackPress}
-              className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all active:scale-95 border border-white/10"
+              aria-label="Go back"
+              className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all active:scale-95 border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               <ArrowLeft className="w-5 h-5 text-white" />
             </button>
           ) : (
-            <div className="p-2 bg-blue-600 rounded-xl glow-primary cursor-pointer active:scale-95 transition-all" onClick={reset}>
+            <button 
+              type="button"
+              onClick={reset}
+              aria-label="Reset application"
+              className="p-2 bg-blue-600 rounded-xl glow-primary cursor-pointer active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            >
               <Zap className="w-5 h-5 text-white" />
-            </div>
+            </button>
           )}
           <h1 className="text-xl font-bold tracking-tight hidden sm:block">Smart Herbo <span className="text-blue-500">Analytics</span></h1>
         </div>
@@ -316,20 +350,41 @@ export default function App() {
           {/* Tutorial Button */}
           <button 
             onClick={() => setShowTutorial(true)}
-            className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all active:scale-95 border border-white/10"
+            aria-label="Open tutorial"
+            className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all active:scale-95 border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             <HelpCircle className="w-5 h-5 text-white/70" />
           </button>
           
           {/* Unit Toggle */}
           <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 glass ml-1">
-            <button onClick={() => toggleUnitSystem('imperial')} className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all ${units === 'imperial' ? 'bg-blue-600 text-white' : 'text-white/40'}`}>Imp</button>
-            <button onClick={() => toggleUnitSystem('metric')} className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all ${units === 'metric' ? 'bg-blue-600 text-white' : 'text-white/40'}`}>Met</button>
+            <button 
+              onClick={() => toggleUnitSystem('imperial')}
+              aria-pressed={units === 'imperial'}
+              aria-label="Switch to imperial units"
+              className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${units === 'imperial' ? 'bg-blue-600 text-white' : 'text-white/40'}`}
+            >Imp</button>
+            <button 
+              onClick={() => toggleUnitSystem('metric')}
+              aria-pressed={units === 'metric'}
+              aria-label="Switch to metric units"
+              className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${units === 'metric' ? 'bg-blue-600 text-white' : 'text-white/40'}`}
+            >Met</button>
           </div>
+          {/* GitHub Repository Link */}
+          <a
+            href="https://github.com/myself-aas/Smart-Herbo"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub repository"
+            className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all active:scale-95 border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <Github className="w-5 h-5 text-white" />
+          </a>
         </div>
       </header>
 
-      <main className="relative z-10">
+      <main id="main-content" className="relative z-10">
         <AnimatePresence mode="wait">
           {step === 'form' && (
             <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
@@ -344,7 +399,7 @@ export default function App() {
               ) : (
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">
-                    <button onClick={reset} className="text-white/40 hover:text-white text-xs font-black uppercase tracking-widest transition-all">Reset Scan</button>
+                    <button onClick={reset} aria-label="Reset scan" className="text-white/40 hover:text-white text-xs font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">Reset Scan</button>
                   </div>
                   <div className="relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/3] bg-neutral-900 shadow-2xl group">
                     <img ref={previewImageRef} src={image} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" alt="Biometric Preview" />
@@ -356,7 +411,12 @@ export default function App() {
                     <FuturisticInput label="Heart Girth" value={dimensions.heartGirth ? String(dimensions.heartGirth) : ''} onChange={(v) => setDimensions({...dimensions, heartGirth: Number(v)})} unit={units === 'imperial' ? 'in' : 'cm'} error={!!errors.global && dimensions.heartGirth <= 0} />
                   </div>
                   {errors.global && <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-400 text-xs flex gap-3"><AlertCircle className="w-4 h-4 shrink-0" />{errors.global}</motion.div>}
-                  <button onClick={handlePredict} disabled={!canPredict} className={`w-full py-6 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl active:scale-95 ${canPredict ? 'bg-blue-600 hover:bg-blue-500' : 'bg-white/5 text-white/20'}`}>Initiate Neural Analysis <BarChart3 className="w-5 h-5" /></button>
+                  <button 
+                    onClick={handlePredict} 
+                    disabled={!canPredict}
+                    aria-label="Initiate neural analysis"
+                    className={`w-full py-6 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${canPredict ? 'bg-blue-600 hover:bg-blue-500' : 'bg-white/5 text-white/20'}`}
+                  >Initiate Neural Analysis <BarChart3 className="w-5 h-5" /></button>
                 </div>
               )}
             </motion.div>
@@ -376,6 +436,7 @@ export default function App() {
             const displayData = getResultDisplayData();
             return (
             <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6 pb-10">
+                          <div id="result-view">
               
               <div className="w-full bg-[#050505] text-white p-6 relative overflow-hidden font-inter border border-white/10 shadow-2xl rounded-3xl">
                 
@@ -565,13 +626,29 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                <button 
-                  onClick={reset} 
-                  className="bg-white/5 border border-white/10 py-4 rounded-2xl text-white/40 font-black uppercase text-[9px] tracking-[0.3em] hover:bg-white/10 transition-all active:scale-95"
-                >
-                  New Analysis Protocol
-                </button>
+                  <button 
+                    onClick={reset} 
+                    aria-label="Start new analysis"
+                    className="bg-white/5 border border-white/10 py-4 rounded-2xl text-white/40 font-black uppercase text-[9px] tracking-[0.3em] hover:bg-white/10 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    New Analysis Protocol
+                  </button>
+                  <button 
+                    onClick={exportAsPNG}
+                    aria-label="Export results as PNG"
+                    className="bg-white/5 border border-white/10 py-4 rounded-2xl text-white/40 font-black uppercase text-[9px] tracking-[0.3em] hover:bg-white/10 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    Export PNG
+                  </button>
+                  <button 
+                    onClick={exportAsPDF}
+                    aria-label="Export results as PDF"
+                    className="bg-white/5 border border-white/10 py-4 rounded-2xl text-white/40 font-black uppercase text-[9px] tracking-[0.3em] hover:bg-white/10 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    Export PDF
+                  </button>
               </div>
+            </div>
             </motion.div>
             );
           })()}
@@ -586,6 +663,8 @@ export default function App() {
       <AnimatePresence>
         {showExitConfirm && (
           <motion.div 
+            role="dialog"
+            aria-modal="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -609,18 +688,20 @@ export default function App() {
                 <p className="text-white/40 text-sm mb-6">Any unsaved analysis data will be lost.</p>
               </div>
               <div className="p-6 border-t border-white/5 flex gap-3 bg-[#050505]">
-                <button 
-                  onClick={() => setShowExitConfirm(false)} 
-                  className="flex-1 bg-white/5 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleExitApp} 
-                  className="flex-1 bg-red-600/20 text-red-400 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-red-600/30 transition-all border border-red-500/30"
-                >
-                  Exit App
-                </button>
+                  <button 
+                    onClick={() => setShowExitConfirm(false)} 
+                    aria-label="Cancel exit"
+                    className="flex-1 bg-white/5 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleExitApp} 
+                    aria-label="Confirm exit"
+                    className="flex-1 bg-red-600/20 text-red-400 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-red-600/30 transition-all border border-red-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                  >
+                    Exit App
+                  </button>
               </div>
             </div>
           </motion.div>

@@ -23,8 +23,9 @@ const FuturisticInput: React.FC<FuturisticInputProps> = ({ label, value, onChang
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          aria-label={label}
           className={`w-full bg-black/60 border-2 ${error ? 'border-red-500/50' : 'border-white/10'} 
-            group-hover:border-blue-500/30 rounded-xl px-4 py-3.5 outline-none 
+            group-hover:border-blue-500/30 rounded-xl px-4 py-3.5 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 
             transition-all duration-300 text-lg font-medium font-futuristic pr-12
             focus:border-transparent relative z-10`}
         />

@@ -3,7 +3,20 @@
 
 SmartHerbo is a futuristic, privacy-first livestock management application designed for precision agriculture. It utilizes on-device Machine Learning (TensorFlow.js) to predict cattle weight and provide specialized nutritional requirements (specifically Plantain Herb supplements) based on metabolic scaling.
 
-## 🚀 Key Features
+## Table of Contents
+- [Key Features](#key-features)
+- [Technical Architecture](#technical-architecture)
+- [Installation & Setup](#installation--setup)
+- [User Guide & Workflow](#user-guide--workflow)
+- [Troubleshooting](#troubleshooting)
+- [Technical Specifications](#technical-specifications)
+- [Performance Metrics](#performance-metrics)
+- [Safety & Disclaimer](#safety--disclaimer)
+- [License & Credits](#license--credits)
+- [Author](#author)
+- [Citation & Metadata](#citation--metadata)
+
+## Key Features
 
 - **Hybrid Inference Engine**: Combines a custom neural core (EfficientNet-derived) with classical biometric formulas (Schaeffer's) to provide high-confidence weight estimations.
 
@@ -17,7 +30,7 @@ SmartHerbo is a futuristic, privacy-first livestock management application desig
 
 - **Cross-Platform Navigation**: Robust back button functionality with exit confirmation for both web and mobile platforms.
 
-## 🧠 Technical Architecture
+## Technical Architecture
 
 ### 1. AI & Machine Learning Pipeline
 
@@ -47,7 +60,7 @@ The application calculates the specific dosage of Plantain Herb based on the ani
 
 **Scaling Logic**: The app uses a baseline of 50g of supplement per 200kg of body weight, adjusted using metabolic scaling principles.
 
-## 🛠 Installation & Setup
+## Installation & Setup
 
 ### Clone the repository:
 ```bash
@@ -70,7 +83,7 @@ Place the following files in the `/public` folder:
 - Camera permissions for biometric capture
 - Minimum 2GB RAM for optimal performance
 
-## 📱 User Guide & Workflow
+## User Guide & Workflow
 
 ### 1. Initialize Engine
 - On first launch, the app downloads and warms up the local models (may take 1-3 seconds depending on device GPU).
@@ -109,7 +122,7 @@ Measure the animal using a physical tape:
   - From empty form → Shows exit confirmation
 - **Exit Confirmation**: Prevents accidental app closure with clear warning modal.
 
-## 🛠 Troubleshooting
+## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
@@ -120,7 +133,7 @@ Measure the animal using a physical tape:
 | **Camera Not Working** | Try using a different browser (Chrome/Firefox recommended) and check device camera permissions. |
 | **Memory Issues** | Close other tabs/applications to free up GPU memory for TensorFlow.js operations. |
 
-## 🔧 Technical Specifications
+## Technical Specifications
 
 ### Core Dependencies
 - **TensorFlow.js**: On-device ML inference
@@ -140,14 +153,14 @@ Measure the animal using a physical tape:
 - **Mobile Web**: iOS 14+, Android 10+
 - **Progressive Web App**: Installable on supported devices
 
-## 📊 Performance Metrics
+## Performance Metrics
 
 - **Initial Load**: 1.5-3 seconds (model warm-up)
 - **Inference Speed**: 400-800ms per analysis
 - **Memory Usage**: 50-150MB during active analysis
 - **Battery Impact**: Minimal (local processing only)
 
-## 🚨 Safety & Disclaimer
+## Safety & Disclaimer
 
 **SmartHerbo is an estimation tool for agricultural planning purposes only.**
 
@@ -162,7 +175,7 @@ Measure the animal using a physical tape:
 - Use professional weighing scales for critical applications
 - Follow manufacturer guidelines for supplement administration
 
-## 📄 License & Credits
+## License & Credits
 
 **Developed for the BAU Agro System Logic initiative**
 
@@ -185,7 +198,7 @@ Measure the animal using a physical tape:
 - **Compatibility**: Web & Mobile Browsers
 
 
-## 👨‍💻 Author
+## Author
 
 <div align="center">
 
@@ -205,7 +218,7 @@ Measure the animal using a physical tape:
 
 ---
 
-## 🎓 Citation & Metadata
+## Citation & Metadata
 
 If you use **SmartHerbo** in your research, field studies, or agricultural monitoring, please cite the software as follows to ensure proper academic attribution:
 

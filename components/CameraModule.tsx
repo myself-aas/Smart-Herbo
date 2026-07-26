@@ -260,6 +260,8 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
 
   return (
     <motion.div 
+      role="dialog"
+      aria-modal="true"
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] bg-black flex flex-col overflow-hidden font-futuristic"
     >
@@ -301,10 +303,19 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
         </div>
         
         <div className="flex gap-4 pointer-events-auto">
-          <button onClick={toggleTorch} className={`p-4 rounded-full border border-white/10 transition-all ${torch ? 'bg-amber-500/20 text-amber-400' : 'bg-white/5 text-white/40'}`}>
+          <button 
+            onClick={toggleTorch} 
+            aria-pressed={torch}
+            aria-label="Toggle torch"
+            className={`p-4 rounded-full border border-white/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${torch ? 'bg-amber-500/20 text-amber-400' : 'bg-white/5 text-white/40'}`}
+          >
             <Zap className="w-6 h-6" />
           </button>
-          <button onClick={onClose} className="p-4 bg-white/5 rounded-full border border-white/10 hover:bg-white/10 transition-all">
+          <button 
+            onClick={onClose}
+            aria-label="Close camera"
+            className="p-4 bg-white/5 rounded-full border border-white/10 hover:bg-white/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
             <X className="text-white w-6 h-6" />
           </button>
         </div>
@@ -349,10 +360,11 @@ const CameraModule: React.FC<CameraModuleProps> = ({ onCapture, onClose }) => {
               <span className="text-[9px] font-black uppercase tracking-widest">Gyro_Sync</span>
            </div>
            
-           <button 
+            <button 
             onClick={capture}
             disabled={!isReady || !!error}
-            className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all active:scale-90
+            aria-label="Capture image"
+            className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
               ${captureStatus === 'locked' ? 'bg-blue-600 scale-110 shadow-[0_0_50px_rgba(59,130,246,0.6)]' : 'bg-white'} 
               ${(!isReady || error) ? 'opacity-10 grayscale' : ''}`}
           >
