@@ -64,7 +64,7 @@ The application calculates the specific dosage of Plantain Herb based on the ani
 
 ### Clone the repository:
 ```bash
-git clone https://github.com/your-repo/smart-herbo.git
+git clone https://github.com/myself-aas/smart-herbo.git
 ```
 
 ### Install dependencies:
