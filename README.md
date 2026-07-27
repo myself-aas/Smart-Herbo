@@ -144,9 +144,9 @@ Measure the animal using a physical tape:
 
 ### Model Architecture
 - **Input Resolution**: 180×240 pixels
-- **Model Size**: ~15MB (quantized)
-- **Inference Time**: <500ms on modern devices
-- **Accuracy**: 92-96% on validation dataset
+- **Model Size**: 0.35MB (quantized)
+- **Inference Time**: 54ms on modern devices
+- **Accuracy**: 96% on test dataset
 
 ### Supported Platforms
 - **Web Browsers**: Chrome 90+, Firefox 88+, Safari 14+
