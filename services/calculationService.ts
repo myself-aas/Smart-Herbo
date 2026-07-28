@@ -23,10 +23,10 @@ export const getFeedSuggestions = (weightKg: number, metabolicWeight: number): F
   
   return [
     {
-      type: 'Plantain Herb Supplement',
+      type: 'Green Herbo',
       amount: dosageGrams,
       unit: 'g/day',
-      description: 'Dietary supplementation scaled by metabolic weight (50g per 200kg BW baseline).'
+      description: 'Phytogenic Additive supplementation scaled by metabolic weight (50g per 200kg BW baseline).'
     }
   ];
 };
