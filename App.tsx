@@ -280,7 +280,7 @@ export default function App() {
     const weightInLbs = weightInKg / LBS_TO_KG;
 
     const dimUnit = result.units === 'imperial' ? 'in' : 'cm';
-    const herbSupplement = result.feedSuggestions.find(f => f.type === "Plantain Herb Supplement");
+    const herbSupplement = result.feedSuggestions.find(f => f.type === "Green Herbo");
     
     return { 
       dateStr, 
@@ -568,7 +568,7 @@ export default function App() {
                                <h3 className="text-2xl font-black text-white uppercase leading-tight">{displayData.herbSupplement.type}</h3>
                                <div className="mt-1 inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/30 text-[7px] font-black uppercase tracking-widest">
                                  <Info className="w-2 h-2" />
-                                 Metabolic Scaled
+                                 Phytogenic Additive
                                </div>
                              </div>
                              <div className="text-right bg-black/40 p-3 rounded-xl border border-white/5">
