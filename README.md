@@ -228,13 +228,9 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 <div align="center">
 
-*Built with passion for food security research in Bangladesh*
+*"Precision agriculture through intelligent, private, and accessible technology."*
 
 </div>
-
----
-
-*"Precision agriculture through intelligent, private, and accessible technology."*
 
 ---
 
